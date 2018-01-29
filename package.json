@@ -1,0 +1,41 @@
+{
+  "name": "mdprepare",
+  "version": "0.0.1",
+  "description": "Prepare Markdown files. Allows anything to be inserted (files, json, js, xml, csv, etc). Creates Contents. Checks links.",
+  "main": "./dist/mdprepare.js",
+  "scripts": {
+    "test": "standard && babel src --out-dir dist --copy-files"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bkp7/mdprepare.git"
+  },
+  "keywords": [
+    "process",
+    "prepublish",
+    "prepare",
+    "contents",
+    "xml",
+    "csv",
+    "insert",
+    "inject",
+    "markdown",
+    "md",
+    "file"
+  ],
+  "author": "Barry Pitfield",
+  "license": "ISC",
+  "bin": {
+    "mdprepare": "./dist/mdprepare.js"
+  },
+  "dependencies": {
+    "debug": "^3.1.0",
+    "glob-gitignore": "^1.0.6",
+    "minimist": "^1.2.0"
+  },
+  "devDependencies": {
+    "babel-cli": ">=6.26.0",
+    "babel-preset-env": ">=1.6.1",
+    "standard": ">=10.0.3"
+  }
+}
