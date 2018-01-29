@@ -4,7 +4,7 @@
   "description": "Prepare Markdown files. Allows anything to be inserted (files, json, js, xml, csv, etc). Creates Contents. Checks links.",
   "main": "./dist/mdprepare.js",
   "scripts": {
-    "test": "standard && babel src --out-dir dist --copy-files"
+    "test": "standard && babel src --out-dir dist --copy-files && mocha"
   },
   "repository": {
     "type": "git",
@@ -36,6 +36,7 @@
   "devDependencies": {
     "babel-cli": ">=6.26.0",
     "babel-preset-env": ">=1.6.1",
+    "mocha": "^5.0.0",
     "standard": ">=10.0.3"
   }
 }
