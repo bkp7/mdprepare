@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import processFile from './processFile.js'
-import {glob} from 'glob-gitignore'
+const processFile = require('./processFile.js').default
+const glob = require('glob-gitignore').glob
 
 const debug = require('debug')('mdprepare')
 const argv = require('minimist')(process.argv.slice(2))
@@ -20,6 +20,7 @@ glob(pattern, options)
   for (let i = 0; i < files.length; i++) {
     processFile(files[i])
   }
+  console.log('processed ' + files.length + ' files')
 })
 .catch((err) => {
   debug('glob failed: ' + err)
