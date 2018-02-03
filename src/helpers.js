@@ -118,11 +118,9 @@ function _findCodeSpan (txt, start) {
     regex.lastIndex = start
     let regexResult = regex.exec(txt)
     if (regexResult === null) { return {start: -1} }
-    let preLen = 0
-    if (regexResult[1] !== undefined) { preLen = regexResult[1].length }
     let r = {
-      start: regexResult.index + preLen,
-      internalStart: regexResult.index + preLen + regexResult[2].length,
+      start: regexResult.index + regexResult[1].length,
+      internalStart: regexResult.index + regexResult[1].length + regexResult[2].length,
       info: {
         codeFence: regexResult[2]
       }
@@ -136,10 +134,8 @@ function _findCodeSpan (txt, start) {
     regex.lastIndex = r.internalStart
     let regexResult = regex.exec(txt)
     if (regexResult === null) { return {start: -1} }
-    let postLen = 0
-    if (regexResult[3] !== undefined) { postLen = regexResult[3].length }
     r.internalLength = regexResult.index + regexResult[1].length - r.internalStart
-    r.length = regexResult.index + regexResult[0].length - postLen - r.start
+    r.length = regexResult.index + regexResult[0].length - regexResult[3].length - r.start
     r.commandString = ''
     return r
   }
@@ -207,7 +203,7 @@ function _findFencedCode (txt, start) {
     // to match the opening cofeFEnce passed in
     let regex
     let r = JSON.parse(JSON.stringify(opening)) // create copy of opening structure passed in
-    regex = RegExp('^[ ]{0,3}[' + r.info.codeFence[0] + ']{' + r.info.codeFence.length + ',}[ ]*$', 'mg')
+    regex = RegExp('^([ ]{0,3}> |>|[ ]{0,0})[ ]{0,3}[' + r.info.codeFence[0] + ']{' + r.info.codeFence.length + ',}[ ]*$', 'mg')
     regex.lastIndex = r.internalStart
     let regexResult = regex.exec(txt)
     if (opening.info.blockQuote.length !== 0) {
@@ -234,7 +230,7 @@ function _findFencedCode (txt, start) {
 
   function _findEndOfBlock (txt, start) {
     // finds the first line which is not marked as block
-    let regex = /\n(?!([ ]{0,3}> |>))[^\n]*/
+    let regex = /(\n|\r\n)(?!([ ]{0,3}> |>))[^\n]*/g
     regex.lastIndex = start
     let regexResult = regex.exec(txt)
     if (regexResult === null) {

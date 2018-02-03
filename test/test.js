@@ -9,6 +9,9 @@
  const {exec} = require('child_process')
 
  const fencedCodeTests = [
+   {name: 'Simple 1', text: 'plain\r\n```\r\ncode\r\n```\r\nplain', result: {start: 7, length: 14, internalStart: 12, internalLength: 4, commandString: ''}},
+   {name: 'Simple 2', text: 'plain\n```\ncode\n```\nplain', result: {start: 6, length: 12, internalStart: 10, internalLength: 4, commandString: ''}},
+   {name: 'Simple 3', text: 'plain\r```\rcode\r```\rplain', result: {start: 6, length: 12, internalStart: 10, internalLength: 4, commandString: ''}},
    {name: 'Example 88', text: '```\n<\n >\n```', result: {start: 0, length: 12, internalStart: 4, internalLength: 4, commandString: ''}},
    {name: 'Example 89', text: '~~~\n<\n >\n~~~', result: {start: 0, length: 12, internalStart: 4, internalLength: 4, commandString: ''}},
    {name: 'Example 90', text: '``\nfoo\n``', result: {start: 0, length: 9, internalStart: 2, internalLength: 5, commandString: ''}},
@@ -19,6 +22,9 @@
    {name: 'Example 95', text: '```', result: {start: 0, length: 3, internalStart: 3, internalLength: 0, commandString: ''}},
    {name: 'Example 96', text: '`````\n\n```\naaa', result: {start: 0, length: 14, internalStart: 6, internalLength: 8, commandString: ''}},
    {name: 'Example 97', text: '> ```\n> aaa\n\nbbb', result: {start: 0, length: 11, internalStart: 6, internalLength: 5, commandString: ''}},
+   {name: 'Example 97a', text: '> ```\n> aaa\n> \n> bbb', result: {start: 0, length: 20, internalStart: 6, internalLength: 14, commandString: ''}},
+   {name: 'Example 97b', text: '> ```\r\n> aaa\r\n\r\nbbb', result: {start: 0, length: 12, internalStart: 7, internalLength: 5, commandString: ''}},
+   {name: 'Example 97c', text: '> ```\r\n> aaa\r\n> \r\n> bbb', result: {start: 0, length: 23, internalStart: 7, internalLength: 16, commandString: ''}},
    {name: 'Example 98', text: '```\n\n  ```', result: {start: 0, length: 10, internalStart: 4, internalLength: 0, commandString: ''}},
    {name: 'Example 99', text: '```\n```', result: {start: 0, length: 7, internalStart: 4, internalLength: -1, commandString: ''}},
    {name: 'Example 100', text: ' ```\n aaa\naaa\n```', result: {start: 0, length: 17, internalStart: 5, internalLength: 8, commandString: ''}},
@@ -51,7 +57,10 @@
    {name: 'Example 336', text: '`<http://foo.bar.`baz>`', result: {start: 0, length: 18, internalStart: 1, internalLength: 16, commandString: ''}},
    {name: 'Example 338', text: '```foo``', result: {start: -1}},
    {name: 'Example 339', text: '`foo', result: {start: -1}},
-   {name: 'Example 340', text: '`foo``bar``', result: {start: 4, length: 7, internalStart: 6, internalLength: 3, commandString: ''}}
+   {name: 'Example 340', text: '`foo``bar``', result: {start: 4, length: 7, internalStart: 6, internalLength: 3, commandString: ''}},
+   {name: 'block and code 1', text: '>```\r\n>code\r\ntext', result: {start: 0, length: 11, internalStart: 6, internalLength: 5, commandString: ''}},
+   {name: 'block and code 2', text: '>```\r\n>code\r\ntext```\r\n', result: {start: 0, length: 11, internalStart: 6, internalLength: 5, commandString: ''}},
+   {name: 'block and code 3', text: '>```\r\n>code\r\n>```\r\ntext', result: {start: 0, length: 17, internalStart: 6, internalLength: 5, commandString: ''}}
  ]
 
  describe('Dummy test', function () {
