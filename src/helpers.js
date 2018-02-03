@@ -98,6 +98,68 @@ export function findCode (txt, start) {
   }
 }
 
+export function findMdp (txt, start) {
+  let s = _findMdpStartUnfenced(txt, start)
+  if (s.start === -1) { return s }
+  let e = _findMdpEndUnfenced(txt, s)
+  return e
+}
+
+function _findMdpStartUnfenced (txt, start) {
+  let lookFrom = start
+  let m, c
+  while (true) {
+    m = _findMdpStart(txt, lookFrom)
+    if (m.start === -1) { return m }
+    c = findCode(txt, lookFrom)
+    if (c.start === -1 || m.start < c.start || m.start > (c.start + c.length)) {
+      // the mdp start we've found is not within a code fence
+      break
+    }
+    // the mdp start we've found is within a code fence so find the next one
+    lookFrom = c.start + c.length
+  }
+  return m
+}
+
+function _findMdpEndUnfenced (txt, opening) {
+  let lookFrom = opening.internalStart
+  let m, c
+  while (true) {
+    m = _findMdpEnd(txt, opening)
+    if (m.start === -1) { return m }
+    c = findCode(txt, lookFrom)
+    if (c.start === -1 || m.start < c.start || m.start > (c.start + c.length)) { break } // the mdp end we've found is not within a code fence
+    // the mdp end we've found is within a code fence so find the next one
+    lookFrom = c.start + c.length
+  }
+  return m
+}
+
+function _findMdpStart (txt, start) {
+  let regex = /(\r\n|\r|\n|^)([ ]{0,3}\[>[^\r\n\t\0[\]]*\]: # (\([^\r\n\t\0]*\)|"[^\r\n\t\0]*"|'[^\r\n\t\0]*'))(\r\n|\r|\n)/g
+  regex.lastIndex = start
+  let regexResult = regex.exec(txt)
+  if (regexResult === null) { return {start: -1} }
+  let r = {
+    start: regexResult.index + regexResult[1].length,
+    internalStart: regexResult.index + regexResult[0].length,
+    commandString: regexResult[3].substring(1, regexResult[3].length - 1)
+  }
+  return r
+}
+
+function _findMdpEnd (txt, opening) {
+  let r = JSON.parse(JSON.stringify(opening)) // create copy of opening structure passed in
+  let regex = /(\r\n|\r|\n)([ ]{0,3}\[<[^\r\n\t\0[\]]*\]: #)(\r\n|\r|\n|$)/g
+  regex.lastIndex = r.internalStart - 2
+  let regexResult = regex.exec(txt)
+  if (regexResult === null) { return {start: -1} }
+  r.internalLength = regexResult.index - r.internalStart
+  r.length = regexResult.index + regexResult[0].length - regexResult[3].length - r.start
+  return r
+}
+
 function _findCodeSpan (txt, start) {
   // finds an inline Code Span in the format: 'some text ``echo myfile.txt`` more text'
   // look for start

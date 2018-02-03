@@ -4,9 +4,18 @@
 // import mdprepare from '../dist/mdprepare.js'
 // import {findComment} from '../dist/helpers.js'
  const processFile = require('../dist/processFile.js').default
- const {findComment, _findEarliestOf, findCode} = require('../dist/helpers.js')
+ const {findComment, _findEarliestOf, findCode, findMdp} = require('../dist/helpers.js')
  const assert = require('assert')
  const {exec} = require('child_process')
+
+ const mdpLinkTests = [
+   {name: 'Simple 1', text: '[>]: # (mdpInsert abc)\r\n12345\r\n[<]: #\r\n', result: {start: 0, length: 37, internalStart: 24, internalLength: 5, commandString: 'mdpInsert abc'}},
+   {name: 'Simple 2', text: 't\n[> a]: # (mdpInsert abc)\r\n12345\r\n[< b]: #\r\n', result: {start: 2, length: 41, internalStart: 28, internalLength: 5, commandString: 'mdpInsert abc'}},
+   {name: 'Simple 3', text: '[>]: # (mdpInsert a)\r\n[<]: #\r\n', result: {start: 0, length: 28, internalStart: 22, internalLength: -2, commandString: 'mdpInsert a'}},
+   {name: 'Simple 4', text: '[>]: # (mdpInsert abc)\r\n12345\r\n[<]: #', result: {start: 0, length: 37, internalStart: 24, internalLength: 5, commandString: 'mdpInsert abc'}},
+   {name: 'code fenced', text: '[>]: # (mdpInsert abc)\r\n12345\r\n`[<]`: #\r\n', result: {start: -1}},
+   {name: 'Simple 1', text: '[>]: # (mdpInsert abc)\r\n12345\r\n[<]: #\r\n', result: {start: 0, length: 37, internalStart: 24, internalLength: 5, commandString: 'mdpInsert abc'}}
+ ]
 
  const fencedCodeTests = [
    {name: 'Simple 1', text: 'plain\r\n```\r\ncode\r\n```\r\nplain', result: {start: 7, length: 14, internalStart: 12, internalLength: 4, commandString: ''}},
@@ -29,6 +38,10 @@
    {name: 'Example 99', text: '```\n```', result: {start: 0, length: 7, internalStart: 4, internalLength: -1, commandString: ''}},
    {name: 'Example 100', text: ' ```\n aaa\naaa\n```', result: {start: 0, length: 17, internalStart: 5, internalLength: 8, commandString: ''}},
    {name: 'Example 101', text: '  ```\naaa\n  aaa\naaa\n  ```', result: {start: 0, length: 25, internalStart: 6, internalLength: 13, commandString: ''}},
+   {name: 'Example 101b', text: '  ```\naaa\n  aaa\naaa\n  ```\r\n', result: {start: 0, length: 25, internalStart: 6, internalLength: 13, commandString: ''}},
+   {name: 'Example 101c', text: '  ```\naaa\n  aaa\naaa\n  ```\r', result: {start: 0, length: 25, internalStart: 6, internalLength: 13, commandString: ''}},
+   {name: 'Example 101d', text: '\r\n  ```\naaa\n  aaa\naaa\n  ```\r\n', result: {start: 2, length: 25, internalStart: 8, internalLength: 13, commandString: ''}},
+   {name: 'Example 101e', text: '\n  ```\naaa\n  aaa\naaa\n  ```\r\n', result: {start: 1, length: 25, internalStart: 7, internalLength: 13, commandString: ''}},
    {name: 'Example 102', text: '   ```\n   aaa\n    aaa\n   ```', result: {start: 0, length: 28, internalStart: 7, internalLength: 14, commandString: ''}},
    {name: 'Example 103', text: '    ```\n    aaa\n    ```', result: {start: 0, length: 23, internalStart: 0, internalLength: 23, commandString: ''}},
    {name: 'Example 104', text: '```\naaa\n  ```', result: {start: 0, length: 13, internalStart: 4, internalLength: 3, commandString: ''}},
@@ -157,6 +170,15 @@
            let r = findCode(fencedCodeTests[i].text)
            delete r.info
            assert.deepEqual(r, fencedCodeTests[i].result)
+         })
+       }
+     })
+     describe('findMdpInsertBlocks', function () {
+       for (let i = 0; i < mdpLinkTests.length; i++) {
+         it(mdpLinkTests[i].name, function () {
+           let r = findMdp(mdpLinkTests[i].text)
+           delete r.info
+           assert.deepEqual(r, mdpLinkTests[i].result)
          })
        }
      })
