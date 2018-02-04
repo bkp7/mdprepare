@@ -17,5 +17,5 @@ export default function (filePath) {
 function inspectText (txt) {
   // looks for, and records line information for the file
   // also looks for comments
-  return h.findComment(txt, 0)
+  return h.findCode(txt, 0)
 }

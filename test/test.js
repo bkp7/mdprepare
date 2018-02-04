@@ -4,7 +4,7 @@
 // import mdprepare from '../dist/mdprepare.js'
 // import {findComment} from '../dist/helpers.js'
  const processFile = require('../dist/processFile.js').default
- const {findComment, _findEarliestOf, findCode, findMdp} = require('../dist/helpers.js')
+ const {findCode, findMdpInsert} = require('../dist/helpers.js')
  const assert = require('assert')
  const {exec} = require('child_process')
 
@@ -129,48 +129,6 @@
 
  describe('unit tests', function () {
    describe('helpers.js', function () {
-     describe('findComment', function () {
-       it('finds no comment style <--..-->', function () {
-         assert.equal(findComment('H<--e-->llo', 0).start, -1)
-       })
-       it('finds comment style <!--..-->', function () {
-         assert.deepEqual(findComment('H<!--e-->llo', 0), {start: 1, length: 8, internalStart: 5, internalLength: 1})
-       })
-       it('finds comment style <!--..', function () {
-         assert.deepEqual(findComment('H<!--ello', 0), {start: 1, length: 8, internalStart: 5, internalLength: 4})
-       })
-
-       it('finds no comment style <---..-->', function () {
-         assert.equal(findComment('H<---e-->llo', 0).start, -1)
-       })
-       it('finds comment style <!---..-->', function () {
-         assert.deepEqual(findComment('H<!---e-->llo', 0), {start: 1, length: 9, internalStart: 6, internalLength: 1})
-       })
-       it('finds comment style <!--..', function () {
-         assert.deepEqual(findComment('H<!---elloee', 0), {start: 1, length: 11, internalStart: 6, internalLength: 6})
-       })
-
-       it('finds comment style (2A) [//]: <> (comment)\r\n', function () {
-         assert.deepEqual(findComment('test[//]: <> (comment)\r\nend', 0), {start: 4, length: 20, internalStart: 14, internalLength: 7})
-       })
-       it('finds comment style (2B) [//]: <> (comment)\n', function () {
-         assert.deepEqual(findComment('test[//]: <> (comment)\nend', 0), {start: 4, length: 19, internalStart: 14, internalLength: 7})
-       })
-     })
-     describe('_findEarliestOf', function () {
-       it('target in middle of string', function () {
-         assert.deepEqual(_findEarliestOf('a test string ``` <¬-- here', 5, ['~~~', '```', '<---']), [14, 1])
-       })
-       it('target at beginning of string', function () {
-         assert.deepEqual(_findEarliestOf('a test string ``` <¬-- here', 0, ['~~~', '````', '<!---', 'a ']), [0, 3])
-       })
-       it('target at end of string', function () {
-         assert.deepEqual(_findEarliestOf('a test string ``` <¬-- hire', 18, ['~~~', '```', '<!---', 'e']), [26, 3])
-       })
-       it('target not in string', function () {
-         assert.deepEqual(_findEarliestOf('a test string ``` <¬-- here', 5, ['~~~', '````', '<!---']), [-1, 0])
-       })
-     })
      describe('findCode', function () {
        for (let i = 0; i < fencedCodeTests.length; i++) {
          it(fencedCodeTests[i].name, function () {
@@ -183,7 +141,7 @@
      describe('findMdpInsertBlocks', function () {
        for (let i = 0; i < mdpLinkTests.length; i++) {
          it(mdpLinkTests[i].name, function () {
-           let r = findMdp(mdpLinkTests[i].text)
+           let r = findMdpInsert(mdpLinkTests[i].text)
            delete r.info
            assert.deepEqual(r, mdpLinkTests[i].result)
          })

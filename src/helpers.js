@@ -1,4 +1,4 @@
-/** findComment and findCode functions use a similar layout to return the location and contents
+/** findMdpInsert and findCode functions use a similar layout to return the location and contents
   *   .start          => points at the character in the string why the other item starts (ie. comment or code block)
   *   .length         => is the overall length of the comment or code block.
   *   .internalStart  => points at the character in the string where the internal payload starts
@@ -7,52 +7,6 @@
   *   .info           => is a structure containing further info about what was found
   * if start is set to -1 then nothing was found
 **/
-
-const commentStyles = [
-  {opening: '<!---', closings: ['-->']},
-  {opening: '<!--', closings: ['-->']},
-  {opening: '[//]: <> (', closings: [')\n', ')\r\n']},
-  {opening: '[//]: # (', closings: [')\n', ')\r\n']}
-]
-
-export function findComment (txt, start) {
-  // finds the next comment in the string provided starting at position start
-  // returns an object containing, start, length, internalStart, internalLength
-  let r = {}
-  let p
-  let i
-
-  // look for the start of a comment block
-  let style = -1
-  r.start = txt.length + 1
-  for (i = 0; i < commentStyles.length; i++) {
-    p = txt.indexOf(commentStyles[i].opening, start)
-    if ((p !== -1) && (p < r.start)) { r.start = p; style = i }
-  }
-  if (style === -1) {
-    // we did not find any comments
-    r.start = -1
-    return r
-  }
-  r.internalStart = r.start + commentStyles[style].opening.length
-
-  // now find the corresponding end of the comment
-  p = -1
-  for (i = 0; i < commentStyles[style].closings.length; i++) {
-    p = txt.indexOf(commentStyles[style].closings[i], r.internalStart + 1)
-    if (p !== -1) break
-  }
-
-  if (p === -1) {
-    // no end of comment found so it must end at the end of the file
-    r.internalLength = txt.length - r.internalStart
-    r.length = txt.length - r.start
-  } else {
-    r.internalLength = p - r.internalStart
-    r.length = p + commentStyles[style].closings[i].length - r.start
-  }
-  return r
-}
 
 export function findCode (txt, start) {
   /**
@@ -86,19 +40,9 @@ export function findCode (txt, start) {
   let z = _findCodeSpan(txt, start)
 
   return _earlierOf(x, _earlierOf(y, z))
-
-  function _earlierOf (a, b) {
-    // inspects the .start property of a and b and returns the one
-    // with the lowest start position
-    if (b.start !== -1 && (a.start === -1 || b.start < a.start)) {
-      return b
-    } else {
-      return a
-    }
-  }
 }
 
-export function findMdp (txt, start) {
+export function findMdpInsert (txt, start) {
   let s = _findMdpStartUnfenced(txt, start)
   if (s.start === -1) { return s }
   let s1 = JSON.parse(JSON.stringify(s)) // create copy
@@ -130,6 +74,16 @@ export function findMdp (txt, start) {
   return e
 }
 
+export function _earlierOf (a, b) {
+  // inspects the .start property of a and b and returns the one
+  // with the lowest start position
+  if (b.start !== -1 && (a.start === -1 || b.start < a.start)) {
+    return b
+  } else {
+    return a
+  }
+}
+
 function _findMdpStartUnfenced (txt, start) {
   let lookFrom = start
   let m, c
@@ -145,6 +99,19 @@ function _findMdpStartUnfenced (txt, start) {
     lookFrom = c.start + c.length
   }
   return m
+
+  function _findMdpStart (txt, start) {
+    let regex = /(\r\n|\n|^)([ ]{0,3}\[>[^\r\n\t\0[\]]*\]: # (\([^\r\n\t\0]*\)|"[^\r\n\t\0]*"|'[^\r\n\t\0]*'))(\r\n|\n)/g
+    regex.lastIndex = start
+    let regexResult = regex.exec(txt)
+    if (regexResult === null) { return {start: -1} }
+    let r = {
+      start: regexResult.index + regexResult[1].length,
+      internalStart: regexResult.index + regexResult[0].length,
+      commandString: regexResult[3].substring(1, regexResult[3].length - 1)
+    }
+    return r
+  }
 }
 
 function _findMdpEndUnfenced (txt, opening, start) {
@@ -159,30 +126,17 @@ function _findMdpEndUnfenced (txt, opening, start) {
     lookFrom = c.start + c.length
   }
   return m
-}
 
-function _findMdpStart (txt, start) {
-  let regex = /(\r\n|\n|^)([ ]{0,3}\[>[^\r\n\t\0[\]]*\]: # (\([^\r\n\t\0]*\)|"[^\r\n\t\0]*"|'[^\r\n\t\0]*'))(\r\n|\n)/g
-  regex.lastIndex = start
-  let regexResult = regex.exec(txt)
-  if (regexResult === null) { return {start: -1} }
-  let r = {
-    start: regexResult.index + regexResult[1].length,
-    internalStart: regexResult.index + regexResult[0].length,
-    commandString: regexResult[3].substring(1, regexResult[3].length - 1)
+  function _findMdpEnd (txt, opening, start) {
+    let r = JSON.parse(JSON.stringify(opening)) // create copy of opening structure passed in
+    let regex = /(\r\n|\n)([ ]{0,3}\[<[^\r\n\t\0[\]]*\]: #)(\r\n|\n|$)/g
+    regex.lastIndex = start
+    let regexResult = regex.exec(txt)
+    if (regexResult === null) { return {start: -1} }
+    r.internalLength = regexResult.index - r.internalStart
+    r.length = regexResult.index + regexResult[0].length - regexResult[3].length - r.start
+    return r
   }
-  return r
-}
-
-function _findMdpEnd (txt, opening, start) {
-  let r = JSON.parse(JSON.stringify(opening)) // create copy of opening structure passed in
-  let regex = /(\r\n|\n)([ ]{0,3}\[<[^\r\n\t\0[\]]*\]: #)(\r\n|\n|$)/g
-  regex.lastIndex = start
-  let regexResult = regex.exec(txt)
-  if (regexResult === null) { return {start: -1} }
-  r.internalLength = regexResult.index - r.internalStart
-  r.length = regexResult.index + regexResult[0].length - regexResult[3].length - r.start
-  return r
 }
 
 function _findCodeSpan (txt, start) {
@@ -324,26 +278,4 @@ function _findFencedCode (txt, start) {
       return regexResult.index
     }
   }
-}
-
-export function _findEarliestOf (txt, start, arrPossibles) {
-  /** returns both the location of and the index within the arr of the first match it can find
-    * eg. _findEarliestOf('a test string ``` <¬-- here', 5, ['~~~', '```', '<---'])
-    * will return [14, 1]
-    * if no matches are found it will return -1 as the position
-    * if 2 strings in the array match it will return the array index of the first one that matches
-  **/
-  let arrIndex = 0
-  let len = txt.length
-  let pos = txt.length + 1
-  let posTemp = -1
-  for (let i = 0; i < len; i++) {
-    posTemp = txt.indexOf(arrPossibles[i], start)
-    if (posTemp !== -1 && posTemp < pos) {
-      pos = posTemp
-      arrIndex = i
-    }
-  }
-  if (pos === len + 1) { pos = -1 }
-  return [pos, arrIndex]
 }
