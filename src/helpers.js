@@ -5,7 +5,14 @@
   *   .internalLength => is the length of the internal payload
   *   .commandString  => is the command string found within the particular item
   *   .info           => is a structure containing further info about what was found
-  * if start is set to -1 then nothing was found
+  * if start is returned as -1 then nothing was found
+  *
+  * The internalStart/internaLength defines the internal content which will be replaced. This does not include
+  * leading and lagging CRLF/LF. So the replacement text is not required to have either leading or lagging line
+  * endings. However, if the internalLength is negative this means that leading CRLF or LF must be added by the insertion
+  * routine. The reason for this is that it allows insertions between code fences or mdpInsert pairs which have zero lines
+  * between them.
+  *
 **/
 
 export function findCode (txt, start) {

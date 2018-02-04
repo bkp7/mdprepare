@@ -7,18 +7,39 @@ A command line utility to prepare and process md files ready for publication.
 ## THIS UTILITY IS UNDER CONSTRUCTION AND NOT READY FOR USE YET
 
 ## Introduction
-Allows anything that can be obtained at the command line to be inserted into a markdown document. This could be anything from a simple file, a file extract or true program output.
+Allows anything that can be obtained at the command line to be inserted into a markdown document. Including a whole file, a file extract or true program output.
 
-This is useful if you wish to reuse documents located separately, or wish to insert data/code samples which have been subjected to tests and can therefore be guaranteed to be up to date.
+This is useful if you wish to reuse documents located separately, or wish to insert data/code samples which have been subjected to tests and can therefore be guaranteed to be up to date in your documentation.
 
-For example if you wished to insert the contents of example1.json (to replace the previous version):
-````markdown
-Plain text
-```json mdpInsert cat ./example1.json
-{example: 'previous version'}
+## Installation
+
+`npm install mdprepare`
+
+## Getting Started
+
+Create two files
+toInsert.md:
+```markdown
+### Heading
+Example text
 ```
-More plain text 
-````
+
+and example.md
+```markdown
+# Demonstration of mdprepare
+The contents of  toInsert.md are inserted between here
+[>]: # (mdpInsert -file ./toInsert.md)
+[<]: #
+and here
+```
+
+Then from the command line run `mdprepare` and see the changes made to example.md
+
+The above two files are included as part of the package and can be copied to your working directory from `node_modules/mdprepare/demo`
+
+## Running mdprepare
+
+From the command line run `mdprepare` which will process all md files in the current and any child folders (ignoring the node_modules folder). Alternatively can be fired from any script in package.json. For a full explanation of all the options see [mdprocess Command](#mdprepare-command)
 
 ## Insertion methods
 
@@ -72,4 +93,38 @@ This will fail:
 >> someCode()
 >> ```
 ````
+
+## Detailed specifications
+
+### mdprepare Command
+
+Usage: `mdprepare [FILES] [options]`
+
+`FILES` is a glob expression representing the files to be processed - default: `./**/*.md`
+
+Options:
+`--ignore` glob expression representing files to be ignored - default value: `node_modules`
+`--clear` removes any existing text which would normally be replaced by mdprocess.
+
+### mdpInsert Command
+
+Usage: within either of the two insertion methods: `mdpInsert' [option] [arguments]
+
+Options:
+`--cmd` runs all that follows as if from the command line, inserting the result. This is the default option so does not have to be present
+`--contents` inserts a contents section built from headings within your document
+`--file` inserts text from (part of) a file
+
+### Additional commands
+
+Installing json-snip allows the following:
+````markdown
+```mdpInsert json-snip example.json --ellipsify alarm !timestamp
+{'JsonExtract': 'inserted here'}
+```
+````
+
+
+
+
 

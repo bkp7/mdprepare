@@ -17,8 +17,14 @@ debug('starting glob(' + pattern + ', ' + JSON.stringify(options))
 glob(pattern, options)
 .then(files => {
   debug('found ' + files.length + ' files')
+  let tStart, tTaken, ms
   for (let i = 0; i < files.length; i++) {
+    tStart = process.hrtime()
+    process.stdout.write(files[i] + ' ...processing')
     processFile(files[i])
+    tTaken = process.hrtime(tStart)
+    ms = tTaken[0] * 1000 + tTaken[1] / 1000000
+    process.stdout.write('\x1B[0G' + files[i] + ' [' + ms + ' ms]            \r\n')
   }
   console.log('processed ' + files.length + ' files')
 })

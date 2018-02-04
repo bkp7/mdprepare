@@ -11,7 +11,7 @@ export default function (filePath) {
     throw Error('file not found')
   }
   inspectText(txt)
-  return 'success'
+  return true
 }
 
 function inspectText (txt) {
