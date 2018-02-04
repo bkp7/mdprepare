@@ -101,7 +101,32 @@ export function findCode (txt, start) {
 export function findMdp (txt, start) {
   let s = _findMdpStartUnfenced(txt, start)
   if (s.start === -1) { return s }
-  let e = _findMdpEndUnfenced(txt, s)
+  let s1 = JSON.parse(JSON.stringify(s)) // create copy
+  let depth = 1
+  let e
+  let posn = s1.internalStart
+  while (depth !== 0) {
+    e = _findMdpEndUnfenced(txt, s, posn)
+    if (e.start === -1) {
+      // we have not found any more ends so we need to return a fail
+      return e
+    }
+    s1 = _findMdpStartUnfenced(txt, posn)
+    if (s1.start !== -1) {
+      // we have found another start pattern
+      if (s1.start < (e.internalStart + e.internalLength)) {
+        depth++
+        posn = s1.internalStart
+      } else {
+        depth--
+        posn = e.start + e.length
+      }
+    } else {
+      depth--
+      posn = e.start + e.length
+    }
+    if (depth > 5) { return {start: -1} }
+  }
   return e
 }
 
@@ -122,14 +147,14 @@ function _findMdpStartUnfenced (txt, start) {
   return m
 }
 
-function _findMdpEndUnfenced (txt, opening) {
-  let lookFrom = opening.internalStart
+function _findMdpEndUnfenced (txt, opening, start) {
+  let lookFrom = start
   let m, c
   while (true) {
-    m = _findMdpEnd(txt, opening)
+    m = _findMdpEnd(txt, opening, lookFrom - 2)
     if (m.start === -1) { return m }
     c = findCode(txt, lookFrom)
-    if (c.start === -1 || m.start < c.start || m.start > (c.start + c.length)) { break } // the mdp end we've found is not within a code fence
+    if (c.start === -1 || (m.internalStart + m.internalLength) < c.start || (m.internalStart + m.internalLength) > (c.start + c.length)) { break } // the mdp end we've found is not within a code fence
     // the mdp end we've found is within a code fence so find the next one
     lookFrom = c.start + c.length
   }
@@ -137,7 +162,7 @@ function _findMdpEndUnfenced (txt, opening) {
 }
 
 function _findMdpStart (txt, start) {
-  let regex = /(\r\n|\r|\n|^)([ ]{0,3}\[>[^\r\n\t\0[\]]*\]: # (\([^\r\n\t\0]*\)|"[^\r\n\t\0]*"|'[^\r\n\t\0]*'))(\r\n|\r|\n)/g
+  let regex = /(\r\n|\n|^)([ ]{0,3}\[>[^\r\n\t\0[\]]*\]: # (\([^\r\n\t\0]*\)|"[^\r\n\t\0]*"|'[^\r\n\t\0]*'))(\r\n|\n)/g
   regex.lastIndex = start
   let regexResult = regex.exec(txt)
   if (regexResult === null) { return {start: -1} }
@@ -149,10 +174,10 @@ function _findMdpStart (txt, start) {
   return r
 }
 
-function _findMdpEnd (txt, opening) {
+function _findMdpEnd (txt, opening, start) {
   let r = JSON.parse(JSON.stringify(opening)) // create copy of opening structure passed in
-  let regex = /(\r\n|\r|\n)([ ]{0,3}\[<[^\r\n\t\0[\]]*\]: #)(\r\n|\r|\n|$)/g
-  regex.lastIndex = r.internalStart - 2
+  let regex = /(\r\n|\n)([ ]{0,3}\[<[^\r\n\t\0[\]]*\]: #)(\r\n|\n|$)/g
+  regex.lastIndex = start
   let regexResult = regex.exec(txt)
   if (regexResult === null) { return {start: -1} }
   r.internalLength = regexResult.index - r.internalStart
@@ -204,7 +229,7 @@ function _findCodeSpan (txt, start) {
 }
 
 function _findIndentedCode (txt, start) {
-  let regex = /((?:^|\n)[ ]{4,}[^\r\n\0]*){1,}/
+  let regex = /((?:^|\r\n|\n)[ ]{4,}[^\r\n\0]*){1,}/g
   regex.lastIndex = start
   let regexResult = regex.exec(txt)
   if (regexResult === null) {
@@ -232,46 +257,46 @@ function _findFencedCode (txt, start) {
 
   function _findOpeningCodeFence (txt, start) {
     // returns the location and type of the next opening code fence
-    let regex = /^([ ]{0,3}> |>|[ ]{0,0})(([ ]{0,3})([`]{3,}|[~]{3,})([^\n\r\0`]*))$/m
+    let regex = /(^|\r\n|\n)([ ]{0,3}> |>|[ ]{0,0})(([ ]{0,3})([`]{3,}|[~]{3,})([^\n\r\0`]*))($|\r\n|\n)/g
     /** The regex groups are:
       * 0: the full match including any preamble block markup
-      * 1: the preamble consisting of block characters or nothing
-      * 2: the full codeFence line without preamble
-      * 3: any leading blank spaces at the start of the codeFence line
-      * 4: the ` or ~ characters identifying the codeFence
-      * 5: anything else on the line following the codeFence
+      * 1: the leading new line character(s)
+      * 2: the preamble consisting of block characters or nothing
+      * 3: the full codeFence line without preamble
+      * 4: any leading blank spaces at the start of the codeFence line
+      * 5: the ` or ~ characters identifying the codeFence
+      * 6: anything else on the line following the codeFence
+      * 7: the final new line character(s)
     **/
     regex.lastIndex = start
     let regexResult = regex.exec(txt)
     if (regexResult === null) {
       return {start: -1}
     }
-    let r = { start: regexResult.index,
+    let r = { start: regexResult.index + regexResult[1].length,
       info: {
-        blockQuote: regexResult[1],
-        spacesCount: regexResult[3].length,
-        codeFence: regexResult[4]
+        blockQuote: regexResult[2],
+        spacesCount: regexResult[4].length,
+        codeFence: regexResult[5]
       },
-      commandString: regexResult[5].trim(),
+      commandString: regexResult[6].trim(),
       internalStart: regexResult.index + regexResult[0].length
     }
-    if (txt[r.internalStart] === '\r') { r.internalStart ++ }
-    if (txt[r.internalStart] === '\n') { r.internalStart ++ }
     return r
   }
 
   function _findClosingCodeFence (txt, opening) {
     // updates the passed result structure with the location and type of the next closing code fence
-    // to match the opening cofeFEnce passed in
+    // to match the opening cofeFence passed in
     let regex
     let r = JSON.parse(JSON.stringify(opening)) // create copy of opening structure passed in
-    regex = RegExp('^([ ]{0,3}> |>|[ ]{0,0})[ ]{0,3}[' + r.info.codeFence[0] + ']{' + r.info.codeFence.length + ',}[ ]*$', 'mg')
-    regex.lastIndex = r.internalStart
+    regex = RegExp('(^|\r\n|\n)([ ]{0,3}> |>|[ ]{0,0})[ ]{0,3}[' + r.info.codeFence[0] + ']{' + r.info.codeFence.length + ',}[ ]*($|\r\n|\n)', 'g')
+    regex.lastIndex = r.internalStart - 2
     let regexResult = regex.exec(txt)
     if (opening.info.blockQuote.length !== 0) {
       // we are in a block quote so the codeFence will end at the earlier of the found regex OR end of the block quote
       let b = _findEndOfBlock(txt, r.internalStart)
-      if (b !== -1 && (regexResult === null || b < regexResult.index)) {
+      if (b !== -1 && (regexResult === null || b < (regexResult.index + regexResult[1].length))) {
         // the block end dictates the code block end
         r.internalLength = b - r.internalStart
         r.length = b - r.start
@@ -283,16 +308,14 @@ function _findFencedCode (txt, start) {
       r.length = txt.length - r.start
     } else {
       r.internalLength = regexResult.index - r.internalStart
-      if (txt[r.internalStart + r.internalLength - 1] === '\n') { r.internalLength -- }
-      if (txt[r.internalStart + r.internalLength - 1] === '\r') { r.internalLength -- }
-      r.length = regexResult.index + regexResult[0].length - r.start
+      r.length = regexResult.index + regexResult[0].length - regexResult[3].length - r.start
     }
     return r
   }
 
   function _findEndOfBlock (txt, start) {
     // finds the first line which is not marked as block
-    let regex = /(\n|\r\n)(?!([ ]{0,3}> |>))[^\n]*/g
+    let regex = /(\r\n|\n)(?!([ ]{0,3}> |>))[^>\r\n]*/g
     regex.lastIndex = start
     let regexResult = regex.exec(txt)
     if (regexResult === null) {

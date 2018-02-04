@@ -13,14 +13,19 @@
    {name: 'Simple 2', text: 't\n[> a]: # (mdpInsert abc)\r\n12345\r\n[< b]: #\r\n', result: {start: 2, length: 41, internalStart: 28, internalLength: 5, commandString: 'mdpInsert abc'}},
    {name: 'Simple 3', text: '[>]: # (mdpInsert a)\r\n[<]: #\r\n', result: {start: 0, length: 28, internalStart: 22, internalLength: -2, commandString: 'mdpInsert a'}},
    {name: 'Simple 4', text: '[>]: # (mdpInsert abc)\r\n12345\r\n[<]: #', result: {start: 0, length: 37, internalStart: 24, internalLength: 5, commandString: 'mdpInsert abc'}},
+   {name: 'Simple 5 (invalid)', text: '[#]: # (mdpInsert abc)\r\n12345\r\n[<]: #\r\n', result: {start: -1}},
    {name: 'code fenced', text: '[>]: # (mdpInsert abc)\r\n12345\r\n`[<]`: #\r\n', result: {start: -1}},
-   {name: 'Simple 1', text: '[>]: # (mdpInsert abc)\r\n12345\r\n[<]: #\r\n', result: {start: 0, length: 37, internalStart: 24, internalLength: 5, commandString: 'mdpInsert abc'}}
+   {name: 'embedded', text: '[>]: # (mdpInsert abc)\r\n12\r\n[>]: # (mdpInsert xyz)\r\nxyz\r\n[<]: #\r\n345\r\n[<]: #\r\n', result: {start: 0, length: 76, internalStart: 24, internalLength: 44, commandString: 'mdpInsert abc'}},
+   {name: 'embedded, 5 deep', text: '[>]: # (mdpInsert abc)\r\n12\r\n[>]: # (mdpInsert xyz)\r\nxyz\r\n[>]: # (mdpInsert xyz)\r\nxyz\r\n[>]: # (mdpInsert xyz)\r\nxyz\r\n[>]: # (mdpInsert xyz)\r\nxyz\r\n[<]: #\r\n\r\n[<]: #\r\n\r\n[<]: #\r\n\r\n[<]: #\r\n345\r\n[<]: #\r\n', result: {start: 0, length: 193, internalStart: 24, internalLength: 161, commandString: 'mdpInsert abc'}},
+   {name: 'embedded, too deep (6) - fails', text: '[>]: # (mdpInsert abc)\r\n12\r\n[>]: # (mdpInsert xyz)\r\nxyz\r\n[>]: # (mdpInsert xyz)\r\nxyz\r\n[>]: # (mdpInsert xyz)\r\nxyz\r\n[>]: # (mdpInsert xyz)\r\nxyz\r\n[>]: # (mdpInsert xyz)\r\nxyz\r\n[<]: #\r\n\r\n[<]: #\r\n\r\n[<]: #\r\n\r\n[<]: #\r\n\r\n[<]: #\r\n345\r\n[<]: #\r\n', result: {start: -1}},
+   {name: 'embedded, some fenced 1', text: '[>]: # (mdpInsert abc)\r\n12\r\n```\r\n[>]: # (mdpInsert xyz)\r\nxyz\r\n```\r\n[>]: # (mdpInsert xyz)\r\nxyz\r\n[>]: # (mdpInsert xyz)\r\nxyz\r\n[>]: # (mdpInsert xyz)\r\nxyz\r\n[>]: # (mdpInsert xyz)\r\nxyz\r\n[<]: #\r\n\r\n```\r\n[<]: #\r\n```\r\n[<]: #\r\n\r\n[<]: #\r\n\r\n[<]: #\r\n345\r\n[<]: #\r\n', result: {start: 0, length: 250, internalStart: 24, internalLength: 218, commandString: 'mdpInsert abc'}},
+   {name: 'embedded, some fenced 2', text: '[>]: # (mdpInsert abc)\r\n12\r\n```\r\n[<]: #\r\n```\r\n[<]: #\r\n[<]: #\r\n', result: {start: 0, length: 52, internalStart: 24, internalLength: 20, commandString: 'mdpInsert abc'}},
+   {name: 'embedded with following', text: '[>]: # (mdpInsert abc)\r\n12\r\n[>]: # (mdpInsert xyz)\r\nxyz\r\n[<]: #\r\n345\r\n[<]: #\r\n[>]: # (mdpInsert xyz)\r\n', result: {start: 0, length: 76, internalStart: 24, internalLength: 44, commandString: 'mdpInsert abc'}}
  ]
 
  const fencedCodeTests = [
    {name: 'Simple 1', text: 'plain\r\n```\r\ncode\r\n```\r\nplain', result: {start: 7, length: 14, internalStart: 12, internalLength: 4, commandString: ''}},
    {name: 'Simple 2', text: 'plain\n```\ncode\n```\nplain', result: {start: 6, length: 12, internalStart: 10, internalLength: 4, commandString: ''}},
-   {name: 'Simple 3', text: 'plain\r```\rcode\r```\rplain', result: {start: 6, length: 12, internalStart: 10, internalLength: 4, commandString: ''}},
    {name: 'Example 88', text: '```\n<\n >\n```', result: {start: 0, length: 12, internalStart: 4, internalLength: 4, commandString: ''}},
    {name: 'Example 89', text: '~~~\n<\n >\n~~~', result: {start: 0, length: 12, internalStart: 4, internalLength: 4, commandString: ''}},
    {name: 'Example 90', text: '``\nfoo\n``', result: {start: 0, length: 9, internalStart: 2, internalLength: 5, commandString: ''}},
@@ -34,12 +39,13 @@
    {name: 'Example 97a', text: '> ```\n> aaa\n> \n> bbb', result: {start: 0, length: 20, internalStart: 6, internalLength: 14, commandString: ''}},
    {name: 'Example 97b', text: '> ```\r\n> aaa\r\n\r\nbbb', result: {start: 0, length: 12, internalStart: 7, internalLength: 5, commandString: ''}},
    {name: 'Example 97c', text: '> ```\r\n> aaa\r\n> \r\n> bbb', result: {start: 0, length: 23, internalStart: 7, internalLength: 16, commandString: ''}},
+   {name: 'Example 97d', text: '>```a\r\n>\r\nbbb', result: {start: 0, length: 8, internalStart: 7, internalLength: 1, commandString: 'a'}},
    {name: 'Example 98', text: '```\n\n  ```', result: {start: 0, length: 10, internalStart: 4, internalLength: 0, commandString: ''}},
    {name: 'Example 99', text: '```\n```', result: {start: 0, length: 7, internalStart: 4, internalLength: -1, commandString: ''}},
    {name: 'Example 100', text: ' ```\n aaa\naaa\n```', result: {start: 0, length: 17, internalStart: 5, internalLength: 8, commandString: ''}},
    {name: 'Example 101', text: '  ```\naaa\n  aaa\naaa\n  ```', result: {start: 0, length: 25, internalStart: 6, internalLength: 13, commandString: ''}},
    {name: 'Example 101b', text: '  ```\naaa\n  aaa\naaa\n  ```\r\n', result: {start: 0, length: 25, internalStart: 6, internalLength: 13, commandString: ''}},
-   {name: 'Example 101c', text: '  ```\naaa\n  aaa\naaa\n  ```\r', result: {start: 0, length: 25, internalStart: 6, internalLength: 13, commandString: ''}},
+   {name: 'Example 101c', text: '  ```\naaa\n  aaa\naaa\n  ```\n', result: {start: 0, length: 25, internalStart: 6, internalLength: 13, commandString: ''}},
    {name: 'Example 101d', text: '\r\n  ```\naaa\n  aaa\naaa\n  ```\r\n', result: {start: 2, length: 25, internalStart: 8, internalLength: 13, commandString: ''}},
    {name: 'Example 101e', text: '\n  ```\naaa\n  aaa\naaa\n  ```\r\n', result: {start: 1, length: 25, internalStart: 7, internalLength: 13, commandString: ''}},
    {name: 'Example 102', text: '   ```\n   aaa\n    aaa\n   ```', result: {start: 0, length: 28, internalStart: 7, internalLength: 14, commandString: ''}},
@@ -72,6 +78,7 @@
    {name: 'Example 339', text: '`foo', result: {start: -1}},
    {name: 'Example 340', text: '`foo``bar``', result: {start: 4, length: 7, internalStart: 6, internalLength: 3, commandString: ''}},
    {name: 'block and code 1', text: '>```\r\n>code\r\ntext', result: {start: 0, length: 11, internalStart: 6, internalLength: 5, commandString: ''}},
+   {name: 'block and code 1b', text: '>```\r\n>code\ntext', result: {start: 0, length: 11, internalStart: 6, internalLength: 5, commandString: ''}},
    {name: 'block and code 2', text: '>```\r\n>code\r\ntext```\r\n', result: {start: 0, length: 11, internalStart: 6, internalLength: 5, commandString: ''}},
    {name: 'block and code 3', text: '>```\r\n>code\r\n>```\r\ntext', result: {start: 0, length: 17, internalStart: 6, internalLength: 5, commandString: ''}}
  ]
