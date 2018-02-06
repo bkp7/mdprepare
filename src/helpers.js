@@ -46,7 +46,20 @@ export function findCode (txt, start) {
   let y = _findIndentedCode(txt, start)
   let z = _findCodeSpan(txt, start)
 
-  return _earlierOf(x, _earlierOf(y, z))
+  return earlierOf(x, earlierOf(y, z))
+}
+
+export function findMdpCode (txt, start) {
+  let posn = start
+  let x
+  while (true) {
+    x = findCode(txt, posn)
+    if (x.start === -1 || x.commandString.indexOf('mdpInsert ') !== -1) {
+      return x
+    } else {
+      posn = x.start + x.length
+    }
+  }
 }
 
 export function findMdpInsert (txt, start) {
@@ -81,7 +94,7 @@ export function findMdpInsert (txt, start) {
   return e
 }
 
-export function _earlierOf (a, b) {
+export function earlierOf (a, b) {
   // inspects the .start property of a and b and returns the one
   // with the lowest start position
   if (b.start !== -1 && (a.start === -1 || b.start < a.start)) {

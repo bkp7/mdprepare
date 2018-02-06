@@ -1,0 +1,6 @@
+# Simple Test
+Some initial text.
+[>]: # (mdpInsert cat abc.txt)
+abc
+[<]: #
+Other text

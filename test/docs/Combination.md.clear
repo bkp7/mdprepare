@@ -1,0 +1,9 @@
+# title
+Some info `code` here
+```json mdpInsert cat abc.txt
+```
+
+[>]: # (mdpInsert cat abc.txt)
+[<]: #
+this stays
+End

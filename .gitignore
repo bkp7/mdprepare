@@ -18,3 +18,8 @@ thumbs.db
 
 #Generated
 dist
+
+#Test temporary dirs
+test/preparedFull
+test/preparedSkeletons
+

@@ -2,11 +2,12 @@
 
 const processFile = require('./processFile.js').default
 const glob = require('glob-gitignore').glob
-
+const chalk = require('chalk')
 const debug = require('debug')('mdprepare')
-const argv = require('minimist')(process.argv.slice(2))
+const argv = require('minimist')(process.argv.slice(2), {'boolean': 'clear'})
 
 debug('arguments from minimist:', argv)
+console.log('clear: ' + argv.clear)
 
 let pattern
 let options = {cwd: process.cwd(), ignore: ['node_modules']}
@@ -20,13 +21,14 @@ glob(pattern, options)
   let tStart, tTaken, ms
   for (let i = 0; i < files.length; i++) {
     tStart = process.hrtime()
-    process.stdout.write(files[i] + ' ...processing')
-    processFile(files[i])
+    process.stdout.write(files[i] + chalk.cyan(' ...processing'))
+    processFile(files[i], argv.clear)
     tTaken = process.hrtime(tStart)
-    ms = tTaken[0] * 1000 + tTaken[1] / 1000000
-    process.stdout.write('\x1B[0G' + files[i] + ' [' + ms + ' ms]            \r\n')
+    ms = Math.round(tTaken[0] * 1000 + tTaken[1] / 1000000)
+    process.stdout.write('\x1B[0G' + files[i] + chalk.green(' (' + ms + ' ms)            \r\n'))
   }
   console.log('processed ' + files.length + ' files')
+  return 0
 })
 .catch((err) => {
   debug('glob failed: ' + err)

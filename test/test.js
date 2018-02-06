@@ -1,12 +1,12 @@
 /* global describe, it */
 
-// import processFile from '../dist/processFile.js'
-// import mdprepare from '../dist/mdprepare.js'
-// import {findComment} from '../dist/helpers.js'
  const processFile = require('../dist/processFile.js').default
- const {findCode, findMdpInsert} = require('../dist/helpers.js')
+ const {processText} = require('../dist/processFile.js')
+ const {findCode, findMdpInsert, findMdpCode} = require('../dist/helpers.js')
+ const {runCliCmd} = require('../dist/processFile.js')
  const assert = require('assert')
  const {exec} = require('child_process')
+ const fs = require('fs-extra')
 
  const mdpLinkTests = [
    {name: 'Simple 1', text: '[>]: # (mdpInsert abc)\r\n12345\r\n[<]: #\r\n', result: {start: 0, length: 37, internalStart: 24, internalLength: 5, commandString: 'mdpInsert abc'}},
@@ -21,6 +21,12 @@
    {name: 'embedded, some fenced 1', text: '[>]: # (mdpInsert abc)\r\n12\r\n```\r\n[>]: # (mdpInsert xyz)\r\nxyz\r\n```\r\n[>]: # (mdpInsert xyz)\r\nxyz\r\n[>]: # (mdpInsert xyz)\r\nxyz\r\n[>]: # (mdpInsert xyz)\r\nxyz\r\n[>]: # (mdpInsert xyz)\r\nxyz\r\n[<]: #\r\n\r\n```\r\n[<]: #\r\n```\r\n[<]: #\r\n\r\n[<]: #\r\n\r\n[<]: #\r\n345\r\n[<]: #\r\n', result: {start: 0, length: 250, internalStart: 24, internalLength: 218, commandString: 'mdpInsert abc'}},
    {name: 'embedded, some fenced 2', text: '[>]: # (mdpInsert abc)\r\n12\r\n```\r\n[<]: #\r\n```\r\n[<]: #\r\n[<]: #\r\n', result: {start: 0, length: 52, internalStart: 24, internalLength: 20, commandString: 'mdpInsert abc'}},
    {name: 'embedded with following', text: '[>]: # (mdpInsert abc)\r\n12\r\n[>]: # (mdpInsert xyz)\r\nxyz\r\n[<]: #\r\n345\r\n[<]: #\r\n[>]: # (mdpInsert xyz)\r\n', result: {start: 0, length: 76, internalStart: 24, internalLength: 44, commandString: 'mdpInsert abc'}}
+ ]
+
+ const mdpCodeTests = [
+   {name: 'Simple 1', text: '```json mdpInsert cat e.txt\r\ncode\r\n```', result: {start: 0, length: 38, internalStart: 29, internalLength: 4, commandString: 'json mdpInsert cat e.txt'}},
+   {name: 'Fails mdpinsert spelt wrong', text: '```json mdpinsert cat e.txt\r\ncode\r\n```', result: {start: -1}},
+   {name: 'Complex command line', text: 'text\r\n``` json   notes  mdpInsert cat e.txt --option1 sp --option2 \r\ncode\r\n```\r\n', result: {start: 6, length: 72, internalStart: 69, internalLength: 4, commandString: 'json   notes  mdpInsert cat e.txt --option1 sp --option2'}}
  ]
 
  const fencedCodeTests = [
@@ -83,11 +89,20 @@
    {name: 'block and code 3', text: '>```\r\n>code\r\n>```\r\ntext', result: {start: 0, length: 17, internalStart: 6, internalLength: 5, commandString: ''}}
  ]
 
- describe('Dummy test', function () {
-   it('1 should equal 1', function () {
-     assert.equal(1, 1)
-   })
- })
+ const processTextTests = [
+   {name: 'Simple 1', text: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n', clear: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n', full: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n'},
+   {name: 'mdpInsert command not present', text: '[>]: # (mdpinsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n', clear: '[>]: # (mdpinsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n', full: '[>]: # (mdpinsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n'},
+   {name: 'Command Line invalid', text: '[>]: # (mdpInsert catt test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n', clear: '[>]: # (mdpInsert catt test/docs/abc.txt)\r\n[<]: #\r\n', full: '[>]: # (mdpInsert catt test/docs/abc.txt)\r\nERROR: Command failed: catt test/docs/abc.txt\n\'catt\' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n\r\n[<]: #\r\n'},
+   {name: 'Surrounded', text: '# Simple Test\r\nSome initial text.\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\nold text\r\n[<]: #\r\nOther text', clear: '# Simple Test\r\nSome initial text.\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\nOther text', full: '# Simple Test\r\nSome initial text.\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\nOther text'},
+   {name: 'Empty', text: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n\r\n[<]: #\r\n', clear: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n', full: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n'},
+   {name: 'Blank Line', text: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n', clear: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n', full: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n'},
+   {name: 'LF only', text: '[>]: # (mdpInsert cat test/docs/abc.txt)\n[<]: #\n', clear: '[>]: # (mdpInsert cat test/docs/abc.txt)\n[<]: #\n', full: '[>]: # (mdpInsert cat test/docs/abc.txt)\nabc\n[<]: #\n'},
+   {name: 'Two replacements', text: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n', clear: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n', full: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n'},
+   {name: 'Code Fence 1', text: '```json mdpInsert cat test/docs/abc.txt\r\nxyz\r\ncode\r\n```', clear: '```json mdpInsert cat test/docs/abc.txt\r\n```', full: '```json mdpInsert cat test/docs/abc.txt\r\nabc\r\n```'},
+   {name: 'Code Fence 2', text: 'ss\r\n```json mdpInsert cat test/docs/abc.txt\r\n```', clear: 'ss\r\n```json mdpInsert cat test/docs/abc.txt\r\n```', full: 'ss\r\n```json mdpInsert cat test/docs/abc.txt\r\nabc\r\n```'},
+   {name: 'Code Fence and link', text: '```json mdpInsert cat test/docs/abc.txt\r\nxyz\r\ncode\r\n```\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n', clear: '```json mdpInsert cat test/docs/abc.txt\r\n```\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n', full: '```json mdpInsert cat test/docs/abc.txt\r\nabc\r\n```\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n'},
+   {name: 'Missing File', text: '[>]: # (mdpInsert cat file/not/present.txt)\r\n12345\r\n[<]: #\r\n', clear: '[>]: # (mdpInsert cat file/not/present.txt)\r\n[<]: #\r\n', full: '[>]: # (mdpInsert cat file/not/present.txt)\r\nERROR: Command failed: type file\\not\\present.txt\nThe system cannot find the path specified.\r\n\r\n[<]: #\r\n'}
+ ]
 
 // describe('mdprepare', function () {
 //   it('fires and returns "processed x files message"', function (done) {
@@ -97,35 +112,6 @@
 //     done()
 //   })
 // })
-
- describe('mdprepare', function () {
-   it('fires and returns "processed x files message (1)"', function (done) {
-     this.timeout(4000)
-     exec('mdprepare --ignore **/*.js', function (error, stdout, stderr) {
-       assert.ifError(error)
-       assert.equal(stdout.toString().substr(0, 10), 'processed ')
-       done()
-     })
-   })
-
-   it('fires and returns "processed x files message (2)"', function (done) {
-     this.timeout(4000)
-     exec('mdprepare fred', function (error, stdout, stderr) {
-       assert.ifError(error)
-       assert.equal(stdout.toString().substr(0, 10), 'processed ')
-       done()
-     })
-   })
-
-   it('fires and returns error if directory not found', function (done) {
-     this.timeout(4000)
-     exec('mdprepare //', function (error, stdout, stderr) {
-       assert.ifError(error)
-       assert.notEqual(stderr.toString(), '')
-       done()
-     })
-   })
- })
 
  describe('unit tests', function () {
    describe('helpers.js', function () {
@@ -147,13 +133,109 @@
          })
        }
      })
-   })
-   describe('processFile.js', function () {
-     it('reference to processFile.js OK', function () {
-       assert(processFile)
+     describe('findMdpCode', function () {
+       for (let i = 0; i < mdpCodeTests.length; i++) {
+         it(mdpCodeTests[i].name, function () {
+           let r = findMdpCode(mdpCodeTests[i].text)
+           delete r.info
+           assert.deepEqual(r, mdpCodeTests[i].result)
+         })
+       }
      })
-     it('process file against missing file should error', function () {
-       assert.throws(function () { processFile('not a file') }, /file not found/)
+     describe('runCliCmd', function () {
+       it('Simple', function () {
+         assert.equal(runCliCmd('cat abc.txt', 'test/docs').toString(), 'abc')
+       })
+       it('invalid', function () {
+         assert.equal(runCliCmd('catt abc.txt', 'test/docs').toString(), 'ERROR: Command failed: catt abc.txt\n\'catt\' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n')
+       })
+     })
+     describe('processText', function () {
+       for (let i = 0; i < processTextTests.length; i++) {
+         it(processTextTests[i].name + ' --clear', function () {
+           let r = processText(processTextTests[i].text, true, process.cwd())
+           assert.equal(r, processTextTests[i].clear)
+         })
+         it(processTextTests[i].name + ' full', function () {
+           let r = processText(processTextTests[i].text, false, process.cwd())
+           assert.equal(r, processTextTests[i].full)
+         })
+       }
+     })
+     describe('processFile.js', function () {
+       it('reference to processFile.js OK', function () {
+         assert(processFile)
+       })
+       it('process file against missing file should error', function () {
+         assert.throws(function () { processFile('not a file') }, /file not found/)
+       })
+     })
+   })
+ })
+
+ describe('mdprepare', function () {
+   it('fires and returns "processed x files message (1)"', function (done) {
+     this.timeout(8000)
+     exec('mdprepare --ignore **/*.md', function (error, stdout, stderr) {
+       assert.ifError(error)
+       assert.notEqual(stdout.toString().indexOf('processed 0 files'), -1)
+       done()
+     })
+   })
+
+   it('fires and returns "processed x files message (2)"', function (done) {
+     this.timeout(8000)
+     exec('mdprepare fred', function (error, stdout, stderr) {
+       assert.ifError(error)
+       assert.notEqual(stdout.toString().indexOf('processed 0 files'), -1)
+       done()
+     })
+   })
+
+   it('fires and returns error if directory not found', function (done) {
+     this.timeout(8000)
+     exec('mdprepare //', function (error, stdout, stderr) {
+       assert.ifError(error)
+       assert.notEqual(stderr.toString(), '')
+       done()
+     })
+   })
+ })
+
+ describe('mdprepare test files', function () {
+   fs.emptyDirSync('./test/preparedClear')
+   fs.copySync('./test/docs', './test/preparedClear')
+   fs.emptyDirSync('./test/preparedFull')
+   fs.copySync('./test/docs', './test/preparedFull')
+   var files = fs.readdirSync('./test/docs')
+   for (let i = 0; i < files.length; i++) {
+     if (files[i].substr(-3) === '.md') {
+       it('/test/docs/' + files[i] + ' is prepared correctly', function (done) {
+         this.timeout(8000)
+         exec('mdprepare ./test/preparedFull/' + files[i], function (error, stdout, stderr) {
+           assert.ifError(error)
+           assert.equal(fs.readFileSync('./test/preparedFull/' + files[i], 'utf8'), fs.readFileSync('./test/preparedFull/' + files[i] + '.full', 'utf8'))
+           done()
+         })
+       })
+       it('/test/docs/' + files[i] + ' is cleared correctly', function (done) {
+         this.timeout(8000)
+         exec('mdprepare ./test/preparedClear/' + files[i] + ' --clear', function (error, stdout, stderr) {
+           assert.ifError(error)
+           assert.equal(fs.readFileSync('./test/preparedClear/' + files[i], 'utf8'), fs.readFileSync('./test/preparedClear/' + files[i] + '.clear', 'utf8'))
+           done()
+         })
+       })
+     }
+   }
+   it('test working with read only file - should error', function (done) {
+     this.timeout(8000)
+     fs.writeFileSync('./test/preparedClear/readonly.md', '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n')
+     fs.chmodSync('./test/preparedClear/readonly.md', 0o444) // make file read only
+     exec('mdprepare ./test/preparedClear/readonly.md', function (error, stdout, stderr) {
+       assert.ifError(error)
+       assert.notEqual(stderr.toString(), '')
+       done()
      })
    })
  })
