@@ -1,7 +1,7 @@
 {
   "name": "mdprepare",
   "version": "0.0.1",
-  "description": "Prepare Markdown files. Allows anything to be inserted (files, json, js, xml, csv, etc). Creates Contents. Checks links.",
+  "description": "Utility which allows anything to be inserted into markdown files (files, json, js, xml, csv, etc). Creates Contents. Checks links.",
   "main": "./dist/mdprepare.js",
   "scripts": {
     "test": "standard --fix && npm run js:dist && cross-env NODE_ENV=test nyc mocha",
@@ -22,11 +22,13 @@
     "contents",
     "xml",
     "csv",
+    "json",
     "insert",
     "inject",
     "markdown",
     "md",
-    "file"
+    "file",
+    "link"
   ],
   "author": "Barry Pitfield",
   "license": "ISC",
