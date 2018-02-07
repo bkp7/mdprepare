@@ -90,18 +90,79 @@
  ]
 
  const processTextTests = [
-   {name: 'Simple 1', text: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n', clear: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n', full: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n'},
-   {name: 'mdpInsert command not present', text: '[>]: # (mdpinsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n', clear: '[>]: # (mdpinsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n', full: '[>]: # (mdpinsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n'},
-   {name: 'Command Line invalid', text: '[>]: # (mdpInsert catt test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n', clear: '[>]: # (mdpInsert catt test/docs/abc.txt)\r\n[<]: #\r\n', full: '[>]: # (mdpInsert catt test/docs/abc.txt)\r\nERROR: Command failed: catt test/docs/abc.txt\n\'catt\' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n\r\n[<]: #\r\n'},
-   {name: 'Surrounded', text: '# Simple Test\r\nSome initial text.\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\nold text\r\n[<]: #\r\nOther text', clear: '# Simple Test\r\nSome initial text.\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\nOther text', full: '# Simple Test\r\nSome initial text.\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\nOther text'},
-   {name: 'Empty', text: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n\r\n[<]: #\r\n', clear: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n', full: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n'},
-   {name: 'Blank Line', text: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n', clear: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n', full: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n'},
-   {name: 'LF only', text: '[>]: # (mdpInsert cat test/docs/abc.txt)\n[<]: #\n', clear: '[>]: # (mdpInsert cat test/docs/abc.txt)\n[<]: #\n', full: '[>]: # (mdpInsert cat test/docs/abc.txt)\nabc\n[<]: #\n'},
-   {name: 'Two replacements', text: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n', clear: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n', full: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n'},
-   {name: 'Code Fence 1', text: '```json mdpInsert cat test/docs/abc.txt\r\nxyz\r\ncode\r\n```', clear: '```json mdpInsert cat test/docs/abc.txt\r\n```', full: '```json mdpInsert cat test/docs/abc.txt\r\nabc\r\n```'},
-   {name: 'Code Fence 2', text: 'ss\r\n```json mdpInsert cat test/docs/abc.txt\r\n```', clear: 'ss\r\n```json mdpInsert cat test/docs/abc.txt\r\n```', full: 'ss\r\n```json mdpInsert cat test/docs/abc.txt\r\nabc\r\n```'},
-   {name: 'Code Fence and link', text: '```json mdpInsert cat test/docs/abc.txt\r\nxyz\r\ncode\r\n```\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n', clear: '```json mdpInsert cat test/docs/abc.txt\r\n```\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n', full: '```json mdpInsert cat test/docs/abc.txt\r\nabc\r\n```\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n'},
-   {name: 'Missing File', text: '[>]: # (mdpInsert cat file/not/present.txt)\r\n12345\r\n[<]: #\r\n', clear: '[>]: # (mdpInsert cat file/not/present.txt)\r\n[<]: #\r\n', full: '[>]: # (mdpInsert cat file/not/present.txt)\r\nERROR: Command failed: type file\\not\\present.txt\nThe system cannot find the path specified.\r\n\r\n[<]: #\r\n'}
+   {
+     name: 'Simple 1',
+     text: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n',
+     clear: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n',
+     full_win: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n',
+     full_linux: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n'
+   }, {
+     name: 'mdpInsert command not present',
+     text: '[>]: # (mdpinsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n',
+     clear: '[>]: # (mdpinsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n',
+     full_win: '[>]: # (mdpinsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n',
+     full_linux: '[>]: # (mdpinsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n'
+   }, {
+     name: 'Command Line invalid',
+     text: '[>]: # (mdpInsert catt test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n',
+     clear: '[>]: # (mdpInsert catt test/docs/abc.txt)\r\n[<]: #\r\n',
+     full_win: '[>]: # (mdpInsert catt test/docs/abc.txt)\r\nERROR: Command failed: catt test/docs/abc.txt\n\'catt\' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n\r\n[<]: #\r\n',
+     full_linux: '[>]: # (mdpInsert catt test/docs/abc.txt)\r\nERROR: Command failed: catt test/docs/abc.txt\n/bin/sh: 1: catt: not found\n\r\n[<]: #\r\n'
+   }, {
+     name: 'Surrounded',
+     text: '# Simple Test\r\nSome initial text.\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\nold text\r\n[<]: #\r\nOther text',
+     clear: '# Simple Test\r\nSome initial text.\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\nOther text',
+     full_win: '# Simple Test\r\nSome initial text.\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\nOther text',
+     full_linux: '# Simple Test\r\nSome initial text.\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\nOther text'
+   }, {
+     name: 'Empty',
+     text: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n\r\n[<]: #\r\n',
+     clear: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n',
+     full_win: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n',
+     full_linux: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n'
+   }, {
+     name: 'Blank Line',
+     text: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n',
+     clear: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n',
+     full_linux: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n',
+     full_win: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n'
+   }, {
+     name: 'LF only',
+     text: '[>]: # (mdpInsert cat test/docs/abc.txt)\n[<]: #\n',
+     clear: '[>]: # (mdpInsert cat test/docs/abc.txt)\n[<]: #\n',
+     full_win: '[>]: # (mdpInsert cat test/docs/abc.txt)\nabc\n[<]: #\n',
+     full_linux: '[>]: # (mdpInsert cat test/docs/abc.txt)\nabc\n[<]: #\n'
+   }, {
+     name: 'Two replacements',
+     text: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n',
+     clear: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n',
+     full_win: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n',
+     full_linux: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n'
+   }, {
+     name: 'Code Fence 1',
+     text: '```json mdpInsert cat test/docs/abc.txt\r\nxyz\r\ncode\r\n```',
+     clear: '```json mdpInsert cat test/docs/abc.txt\r\n```',
+     full_win: '```json mdpInsert cat test/docs/abc.txt\r\nabc\r\n```',
+     full_linux: '```json mdpInsert cat test/docs/abc.txt\r\nabc\r\n```'
+   }, {
+     name: 'Code Fence 2',
+     text: 'ss\r\n```json mdpInsert cat test/docs/abc.txt\r\n```',
+     clear: 'ss\r\n```json mdpInsert cat test/docs/abc.txt\r\n```',
+     full_win: 'ss\r\n```json mdpInsert cat test/docs/abc.txt\r\nabc\r\n```',
+     full_linux: 'ss\r\n```json mdpInsert cat test/docs/abc.txt\r\nabc\r\n```'
+   }, {
+     name: 'Code Fence and link',
+     text: '```json mdpInsert cat test/docs/abc.txt\r\nxyz\r\ncode\r\n```\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n',
+     clear: '```json mdpInsert cat test/docs/abc.txt\r\n```\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n',
+     full_win: '```json mdpInsert cat test/docs/abc.txt\r\nabc\r\n```\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n',
+     full_linux: '```json mdpInsert cat test/docs/abc.txt\r\nabc\r\n```\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n'
+   }, {
+     name: 'Missing File',
+     text: '[>]: # (mdpInsert cat file/not/present.txt)\r\n12345\r\n[<]: #\r\n',
+     clear: '[>]: # (mdpInsert cat file/not/present.txt)\r\n[<]: #\r\n',
+     full_win: '[>]: # (mdpInsert cat file/not/present.txt)\r\nERROR: Command failed: type file\\not\\present.txt\nThe system cannot find the path specified.\r\n\r\n[<]: #\r\n',
+     full_linux: '[>]: # (mdpInsert cat file/not/present.txt)\r\nERROR: Command failed: cat file/not/present.txt\ncat: file/not/present.txt: No such file or directory\n\r\n[<]: #\r\n'
+   }
  ]
 
 // describe('mdprepare', function () {
@@ -147,7 +208,11 @@
          assert.equal(runCliCmd('cat abc.txt', 'test/docs').toString(), 'abc')
        })
        it('invalid', function () {
-         assert.equal(runCliCmd('catt abc.txt', 'test/docs').toString(), 'ERROR: Command failed: catt abc.txt\n\'catt\' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n')
+         if (os.platform() === 'win32') {
+           assert.equal(runCliCmd('catt abc.txt', 'test/docs').toString(), 'ERROR: Command failed: catt abc.txt\n\'catt\' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n')
+         } else {
+           assert.equal(runCliCmd('catt abc.txt', 'test/docs').toString(), 'ERROR: Command failed: catt abc.txt\n/bin/sh: 1: catt: not found\n')
+         }
        })
      })
      describe('processText', function () {
@@ -158,7 +223,11 @@
          })
          it(processTextTests[i].name + ' full', function () {
            let r = processText(processTextTests[i].text, false, process.cwd())
-           assert.equal(r, processTextTests[i].full)
+           if (os.platform() === 'win32') {
+             assert.equal(r, processTextTests[i].full_win)
+           } else {
+             assert.equal(r, processTextTests[i].full_linux)
+           }
          })
        }
      })
