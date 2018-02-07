@@ -2,5 +2,5 @@ language: node_js
 node_js:
   - "lts/*"
 sudo: true
-before_script: sudo npm install -g
+before_script: npm install -g
 after_success: npm run coverage
