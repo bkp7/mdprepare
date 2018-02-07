@@ -7,7 +7,6 @@ const debug = require('debug')('mdprepare')
 const argv = require('minimist')(process.argv.slice(2), {'boolean': 'clear'})
 
 debug('arguments from minimist:', argv)
-console.log('clear: ' + argv.clear)
 
 let pattern
 let options = {cwd: process.cwd(), ignore: ['node_modules']}

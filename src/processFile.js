@@ -14,7 +14,7 @@ export default function (filePath, clear) {
     throw Error('file not found')
   }
   try {
-    let p = processText(txt, clear, path.dirname(process.cwd() + filePath))
+    let p = processText(txt, clear, path.dirname(path.resolve(process.cwd(), filePath)))
     fs.writeFileSync(filePath, p)
   } catch (err) {
     throw Error('unable to write to file')
