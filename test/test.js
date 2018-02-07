@@ -246,9 +246,9 @@
  describe('mdprepare', function () {
    it('fires and returns "processed x files message (1)"', function (done) {
      this.timeout(8000)
-     exec('mdprepare --ignore **/*.md', function (error, stdout, stderr) {
+     exec('mdprepare --ignore=**/*.md', function (error, stdout, stderr) {
        assert.ifError(error)
-       assert.notEqual(stdout.toString().indexOf('processed '), -1)
+       assert.notEqual(stdout.toString().indexOf('processed 0 files'), -1)
        done()
      })
    })

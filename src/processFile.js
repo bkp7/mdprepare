@@ -50,6 +50,7 @@ export function processText (txt, clear, fileDirName) {
         } else {
           // we are clearing any content so remove all lines between the start and end lines
           if (txt.substr(frm, 1) === '\r') { frm++ }
+          /* istanbul ignore if  */
           if (txt.substr(frm, 1) === '\n') { frm++ }
         }
       }

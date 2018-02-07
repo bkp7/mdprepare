@@ -39,7 +39,7 @@ The above two files are included as part of the package and can be copied to you
 
 ## Running mdprepare
 
-From the command line run `mdprepare` which will process all md files in the current and any child folders (ignoring the node_modules folder). Alternatively can be fired from any script in package.json. For a full explanation of all the options see [mdprocess Command](#mdprepare-command)
+From the command line run `mdprepare` which will process all md files in the current and any child folders (ignoring the node_modules folder). Alternatively can be fired from any script in package.json. For a full explanation of all the options see [mdprepare Command](#mdprepare-command)
 
 ## Insertion methods
 
@@ -103,7 +103,7 @@ Usage: `mdprepare [FILES] [options]`
 `FILES` is a glob expression representing the files to be processed - default: `./**/*.md`
 
 Options:
-`--ignore` glob expression representing files to be ignored - default value: `node_modules`
+`--ignore` glob expression representing files to be ignored - default values: `node_modules` and the contents of .gitignore if present. eg. `mdprepare --ignore=test*.md`
 `--clear` removes any existing text which would normally be replaced by mdprocess.
 
 ### mdpInsert Command
