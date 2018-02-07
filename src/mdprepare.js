@@ -2,16 +2,27 @@
 
 const processFile = require('./processFile.js').default
 const glob = require('glob-gitignore').glob
+const ignore = require('ignore')
 const chalk = require('chalk')
 const debug = require('debug')('mdprepare')
+const fs = require('fs')
 const argv = require('minimist')(process.argv.slice(2), {'boolean': 'clear'})
 
 debug('arguments from minimist:', argv)
 
+let ig = ignore()
+try {
+  ig.add(fs.readFileSync('./.gitignore').toString())
+} catch (err) {
+  // nothing to do if no .gitignore is present
+}
+ig.add('node_modules')
+if (argv.hasOwnProperty('ignore')) { ig.add(argv.ignore) }
+
+let options = {cwd: process.cwd(), ignore: ig}
+
 let pattern
-let options = {cwd: process.cwd(), ignore: ['node_modules']}
 if (argv._.length === 0) { pattern = './**/*.md' } else { pattern = argv._[0] }
-if (argv.hasOwnProperty('ignore')) { options.ignore.push(argv.ignore) }
 
 debug('starting glob(' + pattern + ', ' + JSON.stringify(options))
 glob(pattern, options)
