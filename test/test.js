@@ -7,6 +7,7 @@
  const assert = require('assert')
  const {exec} = require('child_process')
  const fs = require('fs-extra')
+ const os = require('os')
 
  const mdpLinkTests = [
    {name: 'Simple 1', text: '[>]: # (mdpInsert abc)\r\n12345\r\n[<]: #\r\n', result: {start: 0, length: 37, internalStart: 24, internalLength: 5, commandString: 'mdpInsert abc'}},
