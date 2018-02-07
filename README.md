@@ -76,9 +76,8 @@ On the same line as the opening fence, after the code style (if used), place the
 
 ## Limitations
 
-- mdpInsert within 'comment' pairs if the 'comments' are at top level (ie not within code, a block, or a list, etc)
 - mdpInsert using code fences will only work on top level or one level down blocks
-This is will work:
+So this is will work:
 ````md
 ```js mdpInsert example1.js
 someCode()
@@ -87,7 +86,7 @@ someCode()
 > moreCode()
 > ```
 ````
-This will fail:
+but this will fail:
 ````md
 >> ```js mdpInsert example1.js
 >> someCode()
@@ -103,7 +102,8 @@ Usage: `mdprepare [FILES] [options]`
 `FILES` is a glob expression representing the files to be processed - default: `./**/*.md`
 
 Options:
-`--ignore` glob expression representing files to be ignored - default values: `node_modules` and the contents of .gitignore if present. eg. `mdprepare --ignore=test*.md`
+`--ignore` glob expression representing files to be ignore. By default `node_modules` and the contents of .gitignore (if present) are ignored. Example: `mdprepare --ignore=test*.md`
+
 `--clear` removes any existing text which would normally be replaced by mdprocess.
 
 ### mdpInsert Command
