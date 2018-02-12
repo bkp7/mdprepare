@@ -28,7 +28,8 @@
     "markdown",
     "md",
     "file",
-    "link"
+    "link",
+    "fsnip"
   ],
   "author": "Barry Pitfield",
   "license": "ISC",

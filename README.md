@@ -18,13 +18,14 @@ This is useful if you wish to reuse documents located separately, or wish to ins
 ## Getting Started
 
 Create two files
-toInsert.md:
+- toInsert.md:
+
 ```markdown
 ### Heading
 Example text
 ```
+- example.md:
 
-and example.md
 ```markdown
 # Demonstration of mdprepare
 The contents of  toInsert.md are inserted between here

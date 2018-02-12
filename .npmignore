@@ -21,3 +21,9 @@ thumbs.db
 *.swp
 *~
 .vscode
+
+# CI stuff
+*.yml
+.babelrc
+.nyc_output
+coverage

@@ -1,5 +1,5 @@
 # Demonstration of mdprepare
 The contents of  toInsert.md are inserted between here
-[>]: # (mdpInsert -file ./toInsert.md)
+[>]: # (mdpInsert cat ./toInsert.md)
 [<]: #
 and here
