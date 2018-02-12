@@ -29,7 +29,6 @@ export function processText (txt, clear, fileDirName) {
   let y
   let t
   let frm
-  let cliCommand
   while (true) {
     x = h.findMdpCode(txt, posn)
     y = h.findMdpInsert(txt, posn)
@@ -40,13 +39,13 @@ export function processText (txt, clear, fileDirName) {
     } else {
       r = r + txt.substring(posn, t.internalStart)
       frm = t.internalStart + t.internalLength
-      cliCommand = getCliCommand(t.commandString)
-      if (cliCommand === 'ERROR: mdpInsert command not found') {
+      analyseCommandString(t)
+      if (t.cliCommand === 'ERROR: mdpInsert command not found') {
         // the mdpInsert command was not present so we don't insert or remove anything, just leave as is
         r = r + txt.substr(t.internalStart, t.internalLength)
       } else {
         if (clear !== true) {
-          r = r + runCliCmd(cliCommand, fileDirName)
+          r = r + t.prepend + runCliCmd(t.info.cliCommand, fileDirName) + t.postpend
         } else {
           // we are clearing any content so remove all lines between the start and end lines
           if (txt.substr(frm, 1) === '\r') { frm++ }
@@ -61,12 +60,24 @@ export function processText (txt, clear, fileDirName) {
   return r
 }
 
-function getCliCommand (str) {
-  let x = str.indexOf('mdpInsert ')
+function analyseCommandString (t) {
+  // looks at the command string, checks it is a valid mdpInsert and populates .cli, .prepend and .postpend
+  let x = t.commandString.indexOf('mdpInsert ')
   if (x === -1) {
-    return 'ERROR: mdpInsert command not found'
+    t.cliCommand = 'ERROR: mdpInsert command not found'
+    return
   }
-  return str.substr(x + 10)
+  let regex = /mdpInsert ((`{3,}|~{3,})[^ ]*) /
+  let regexResult = regex.exec(t.commandString)
+  if (regexResult === null) {
+    t.info.cliCommand = t.commandString.substr(x + 10)
+    t.prepend = ''
+    t.postpend = ''
+  } else {
+    t.info.cliCommand = t.commandString.substr(x + regexResult[0].length)
+    t.prepend = regexResult[1] + t.info.endOfLine
+    t.postpend = t.info.endOfLine + regexResult[2]
+  }
 }
 
 export function runCliCmd (str, wDirName) {

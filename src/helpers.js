@@ -56,6 +56,7 @@ export function findMdpCode (txt, start) {
   while (true) {
     x = findCode(txt, posn)
     if (x.start === -1 || x.commandString.indexOf('mdpInsert ') !== -1) {
+      getLineEnding(x, txt)
       return x
     } else {
       posn = x.start + x.length
@@ -92,6 +93,7 @@ export function findMdpInsert (txt, start) {
     }
     if (depth > 5) { return {start: -1} }
   }
+  getLineEnding(e, txt)
   return e
 }
 
@@ -102,6 +104,16 @@ export function earlierOf (a, b) {
     return b
   } else {
     return a
+  }
+}
+
+function getLineEnding (s, txt) {
+  // returns a basic structure with the type of line ending found within the text
+  if (typeof s.info === 'undefined') { s.info = {} }
+  if (txt.indexOf('\r\n') === -1) {
+    s.info.endOfLine = '\n'
+  } else {
+    s.info.endOfLine = '\r\n'
   }
 }
 

@@ -134,6 +134,24 @@
      full_win: '[>]: # (mdpInsert cat test/docs/abc.txt)\nabc\n[<]: #\n',
      full_linux: '[>]: # (mdpInsert cat test/docs/abc.txt)\nabc\n[<]: #\n'
    }, {
+     name: 'add code fence 1',
+     text: '[>]: # (mdpInsert ```json cat test/docs/abc.txt)\n[<]: #\n',
+     clear: '[>]: # (mdpInsert ```json cat test/docs/abc.txt)\n[<]: #\n',
+     full_win: '[>]: # (mdpInsert ```json cat test/docs/abc.txt)\n```json\nabc\n```\n[<]: #\n',
+     full_linux: '[>]: # (mdpInsert ```json cat test/docs/abc.txt)\n```json\nabc\n```\n[<]: #\n'
+   }, {
+     name: 'add code fence 2',
+     text: '[>]: # (mdpInsert ```json cat test/docs/abc.txt)\r\n[<]: #\r\n',
+     clear: '[>]: # (mdpInsert ```json cat test/docs/abc.txt)\r\n[<]: #\r\n',
+     full_win: '[>]: # (mdpInsert ```json cat test/docs/abc.txt)\r\n```json\r\nabc\r\n```\r\n[<]: #\r\n',
+     full_linux: '[>]: # (mdpInsert ```json cat test/docs/abc.txt)\r\n```json\r\nabc\r\n```\r\n[<]: #\r\n'
+   }, {
+     name: 'add code fence 3',
+     text: '[>]: # (mdpInsert ~~~~json cat test/docs/abc.txt)\r\n[<]: #\r\n',
+     clear: '[>]: # (mdpInsert ~~~~json cat test/docs/abc.txt)\r\n[<]: #\r\n',
+     full_win: '[>]: # (mdpInsert ~~~~json cat test/docs/abc.txt)\r\n~~~~json\r\nabc\r\n~~~~\r\n[<]: #\r\n',
+     full_linux: '[>]: # (mdpInsert ~~~~json cat test/docs/abc.txt)\r\n~~~~json\r\nabc\r\n~~~~\r\n[<]: #\r\n'
+   }, {
      name: 'Two replacements',
      text: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n',
      clear: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\n[<]: #\r\n',
