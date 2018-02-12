@@ -282,7 +282,7 @@
      if (files[i].substr(-3) === '.md') {
        it('/test/docs/' + files[i] + ' is prepared correctly', function (done) {
          this.timeout(8000)
-         exec('mdprepare ./test/preparedFull/' + files[i], function (error, stdout, stderr) {
+         exec('mdprepare ./test/preparedFull/' + files[i], function (error) {
            assert.ifError(error)
            assert.equal(fs.readFileSync('./test/preparedFull/' + files[i], 'utf8'), fs.readFileSync('./test/preparedFull/' + files[i] + '.full', 'utf8'))
            done()
