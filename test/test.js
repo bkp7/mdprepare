@@ -255,7 +255,7 @@
 
    it('fires and returns "processed x files message (2)"', function (done) {
      this.timeout(8000)
-     exec('mdprepare fred', function (error) {
+     exec('mdprepare fred', function (error, stdout) {
        assert.ifError(error)
        assert.notEqual(stdout.toString().indexOf('processed 0 files'), -1)
        done()
