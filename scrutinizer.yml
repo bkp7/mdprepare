@@ -1,0 +1,9 @@
+# .scrutinizer.yml
+build:
+  dependencies:
+    before:
+      - npm install istanbul
+  environment:
+    node: v8.9.4
+checks:
+  javascript: true
