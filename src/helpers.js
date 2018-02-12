@@ -50,6 +50,7 @@ export function findCode (txt, start) {
 }
 
 export function findMdpCode (txt, start) {
+  // finds the next location of mdpInsert in a code span within txt
   let posn = start
   let x
   while (true) {
@@ -60,6 +61,7 @@ export function findMdpCode (txt, start) {
       posn = x.start + x.length
     }
   }
+  return undefined // should never get here as findCode will return -1 on its last pass when there are no more code blocks
 }
 
 export function findMdpInsert (txt, start) {
@@ -171,6 +173,7 @@ function _findCodeSpan (txt, start) {
     if (e.start !== -1) { return e }
     lookFrom = s.internalStart
   }
+  return undefined // should never get here because the final run will always give s.start === -1
 
   function _findCodeSpanStart (txt, start) {
     let regex = /(^|[^`])(`+)[^`]/g

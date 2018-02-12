@@ -246,7 +246,7 @@
  describe('mdprepare', function () {
    it('fires and returns "processed x files message (1)"', function (done) {
      this.timeout(8000)
-     exec('mdprepare --ignore=**/*.md', function (error, stdout, stderr) {
+     exec('mdprepare --ignore=**/*.md', function (error, stdout) {
        assert.ifError(error)
        assert.notEqual(stdout.toString().indexOf('processed 0 files'), -1)
        done()
@@ -255,7 +255,7 @@
 
    it('fires and returns "processed x files message (2)"', function (done) {
      this.timeout(8000)
-     exec('mdprepare fred', function (error, stdout, stderr) {
+     exec('mdprepare fred', function (error) {
        assert.ifError(error)
        assert.notEqual(stdout.toString().indexOf('processed 0 files'), -1)
        done()
@@ -290,7 +290,7 @@
        })
        it('/test/docs/' + files[i] + ' is cleared correctly', function (done) {
          this.timeout(8000)
-         exec('mdprepare ./test/preparedClear/' + files[i] + ' --clear', function (error, stdout, stderr) {
+         exec('mdprepare ./test/preparedClear/' + files[i] + ' --clear', function (error) {
            assert.ifError(error)
            assert.equal(fs.readFileSync('./test/preparedClear/' + files[i], 'utf8'), fs.readFileSync('./test/preparedClear/' + files[i] + '.clear', 'utf8'))
            done()

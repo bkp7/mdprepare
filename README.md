@@ -15,7 +15,7 @@ This is useful if you wish to reuse documents located separately, or wish to ins
 
 `npm install mdprepare`
 
-## Getting Started
+## Demo
 
 Create two files
 - toInsert.md:
@@ -50,15 +50,12 @@ There are two methods of insertion
 
 Compatible with most dialects of markdown, a pair of link destinations are used to surround the area which will receive the inserted text. eg:
 ````markdown
-[> optional text]: # (mdpInsert cat ./example1.md)
+[>]: # (mdpInsert cat ./example1.md)
 some previous text
-[< other optional text]: #
-````
-The first character in the square brackets is required as are the square brackets, hash, and spaces. The command itself can be enclosed in brackets, single quote, or double quote, so all the following are valid pairs:
-````markdown
-[>]: # (mdpInsert cat example.txt)
 [<]: #
-
+````
+The first character (`<` or `>`) in the square brackets is required as are the square brackets, hash, and spaces. Other text in the square brackets is ignored so can be used for your comments. The command itself can be enclosed in brackets, single quote, or double quote, so the following are also valid pairs:
+````markdown
 [>]: # " mdpInsert node -v "
 [<]: #
 
@@ -75,7 +72,7 @@ A second method which is compatible GitHub flavored Markdown is to add the mdpIn
 ```
 ````
 
-## Limitations
+#### Limitations
 
 - mdpInsert using code fences will only work on top level or one level down blocks
 So this is **will work**:
@@ -96,16 +93,16 @@ but this **will fail**:
 
 ## Detailed specifications
 
-### mdprepare Command
+### mdprepare CLI Command
 
 Usage: `mdprepare [FILES] [options]`
 
-`FILES` is a glob expression representing the files to be processed - default: `./**/*.md`
+`FILES` is a glob expression representing the files to be processed, the default is: `./**/*.md`
 
 Options:
-`--ignore` glob expression representing files to be ignore. By default `node_modules` and the contents of .gitignore (if present) are ignored. Example: `mdprepare --ignore=test*.md`
+`--ignore` glob expression representing files to be ignore. By default `node_modules` and the contents of .gitignore are ignored. Example: `mdprepare --ignore=test*.md`
 
-`--clear` removes any existing text which would normally be replaced by mdprocess.
+`--clear` removes any existing text which would normally be replaced by mdprocess leaving a lightweight master document. There is no requirement to use this option as old text will always be replaced.
 
 ### mdpInsert Statement
 
@@ -113,11 +110,11 @@ Usage: within either of the two insertion methods: `mdpInsert' [option] [argumen
 
 Options:
 `--cmd` runs all that follows as if from the command line, inserting the result. This is the default option so does not have to be present
-`--contents` inserts a contents section built from headings within your document
+`--contents` (awaiting implementation) inserts a contents section built from headings within your document
 
 ### Additional commands
 
-Installing [fsnip](https://www.npmjs.com/package/fsnip) allows the following:
+Installing [fsnip](https://www.npmjs.com/package/fsnip) alongside mdprepare allows the following:
 ````markdown
 ```json mdpInsert fsnip example.json --ellipsify alarm !timestamp
 {'JsonExtract': 'inserted here'}
