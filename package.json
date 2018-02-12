@@ -1,6 +1,6 @@
 {
   "name": "mdprepare",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Utility which allows anything to be inserted into markdown files (files, json, js, xml, csv, etc). Creates Contents. Checks links.",
   "main": "./dist/mdprepare.js",
   "scripts": {
