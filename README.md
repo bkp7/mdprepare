@@ -7,7 +7,7 @@ A command line utility to prepare and process md files ready for publication.
 ## THIS UTILITY IS UNDER CONSTRUCTION AND NOT READY FOR USE YET
 
 ## Introduction
-Allows anything that can be obtained at the command line to be inserted into a markdown document. Including a whole file, a file extract or true program output.
+Allows anything that can be obtained at the command line to be inserted into a markdown document. Including a whole file, a file extract or any program output via stdout.
 
 This is useful if you wish to reuse documents located separately, or wish to insert data/code samples which have been subjected to tests and can therefore be guaranteed to be up to date in your documentation.
 
@@ -28,7 +28,7 @@ and example.md
 ```markdown
 # Demonstration of mdprepare
 The contents of  toInsert.md are inserted between here
-[>]: # (mdpInsert -file ./toInsert.md)
+[>]: # (mdpInsert cat ./toInsert.md)
 [<]: #
 and here
 ```
@@ -39,7 +39,7 @@ The above two files are included as part of the package and can be copied to you
 
 ## Running mdprepare
 
-From the command line run `mdprepare` which will process all md files in the current and any child folders (ignoring the node_modules folder). Alternatively can be fired from any script in package.json. For a full explanation of all the options see [mdprepare Command](#mdprepare-command)
+From the command line run `mdprepare` which will process all md files in the current and any child folders (ignoring the node_modules folder). Alternatively it can be fired from any script in package.json. For a full explanation of all the options see [mdprepare Command](#mdprepare-command)
 
 ## Insertion methods
 
@@ -47,7 +47,7 @@ There are two methods of insertion
 
 ### (Ab)Using markdown link destinations
 
-A pair of link destinations are used to surround the area which will receive the inserted text. eg:
+Compatible with most dialects of markdown, a pair of link destinations are used to surround the area which will receive the inserted text. eg:
 ````markdown
 [> optional text]: # (mdpInsert cat ./example1.md)
 some previous text
@@ -67,7 +67,7 @@ The first character in the square brackets is required as are the square bracket
 
 ### Fenced Code
 
-On the same line as the opening fence, after the code style (if used), place the mdpInsert statement eg.
+A second method which is compatible GitHub flavored Markdown is to add the mdpInsert statement on the same line as the opening fence, after the code style (if used) eg.
 ````markdown
 ```json mdpInsert cat ./example1.json
 {example: 'previous version'}
@@ -77,7 +77,7 @@ On the same line as the opening fence, after the code style (if used), place the
 ## Limitations
 
 - mdpInsert using code fences will only work on top level or one level down blocks
-So this is will work:
+So this is **will work**:
 ````md
 ```js mdpInsert example1.js
 someCode()
@@ -86,7 +86,7 @@ someCode()
 > moreCode()
 > ```
 ````
-but this will fail:
+but this **will fail**:
 ````md
 >> ```js mdpInsert example1.js
 >> someCode()
@@ -106,24 +106,39 @@ Options:
 
 `--clear` removes any existing text which would normally be replaced by mdprocess.
 
-### mdpInsert Command
+### mdpInsert Statement
 
 Usage: within either of the two insertion methods: `mdpInsert' [option] [arguments]
 
 Options:
 `--cmd` runs all that follows as if from the command line, inserting the result. This is the default option so does not have to be present
 `--contents` inserts a contents section built from headings within your document
-`--file` inserts text from (part of) a file
 
 ### Additional commands
 
-Installing json-snip allows the following:
+Installing [fsnip](https://www.npmjs.com/package/fsnip) allows the following:
 ````markdown
-```mdpInsert json-snip example.json --ellipsify alarm !timestamp
+```json mdpInsert fsnip example.json --ellipsify alarm !timestamp
 {'JsonExtract': 'inserted here'}
 ```
 ````
+or:
+````markdown
+```mdpInsert fsnip example.txt --from startTag --to endTag
+text file extract inserted here
+```
+````
+or:
+````markdown
+[>]: # (mdpInsert fsnip example.md --start '"## Heading 1"' --to '"## Heading 2"')
+## Heading 1
+Section contents inserted here
+[<]: #
+````
+See fsnip [documentation](https://www.npmjs.com/package/fsnip) for further details.
 
+### Note:
+Both mdprepare and fsnip are designed to be cross platform compatible.
 
 
 
