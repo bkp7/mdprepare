@@ -114,8 +114,8 @@
      name: 'Command Line invalid',
      text: '[>]: # (mdpInsert catt test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n',
      clear: '[>]: # (mdpInsert catt test/docs/abc.txt)\r\n[<]: #\r\n',
-     full_win: '[>]: # (mdpInsert catt test/docs/abc.txt)\r\nERROR: Command failed: catt test/docs/abc.txt\r\n\'catt\' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n\r\n[<]: #\r\n',
-     full_linux: '[>]: # (mdpInsert catt test/docs/abc.txt)\r\nERROR: Command failed: catt test/docs/abc.txt\r\n/bin/sh: 1: catt: not found\r\n\r\n[<]: #\r\n'
+     full_win: '[>]: # (mdpInsert catt test/docs/abc.txt)\r\nERROR: Command failed: catt test/docs/abc.txt\r\n\'catt\' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n[<]: #\r\n',
+     full_linux: '[>]: # (mdpInsert catt test/docs/abc.txt)\r\nERROR: Command failed: catt test/docs/abc.txt\r\n/bin/sh: 1: catt: not found\r\n[<]: #\r\n'
    }, {
      name: 'Surrounded',
      text: '# Simple Test\r\nSome initial text.\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\nold text\r\n[<]: #\r\nOther text',
@@ -186,8 +186,8 @@
      name: 'Missing File',
      text: '[>]: # (mdpInsert cat file/not/present.txt)\r\n12345\r\n[<]: #\r\n',
      clear: '[>]: # (mdpInsert cat file/not/present.txt)\r\n[<]: #\r\n',
-     full_win: '[>]: # (mdpInsert cat file/not/present.txt)\r\nERROR: Command failed: type file\\not\\present.txt\r\nThe system cannot find the path specified.\r\n\r\n[<]: #\r\n',
-     full_linux: '[>]: # (mdpInsert cat file/not/present.txt)\r\nERROR: Command failed: cat file/not/present.txt\r\ncat: file/not/present.txt: No such file or directory\r\n\r\n[<]: #\r\n'
+     full_win: '[>]: # (mdpInsert cat file/not/present.txt)\r\nERROR: Command failed: type file\\not\\present.txt\r\nThe system cannot find the path specified.\r\n[<]: #\r\n',
+     full_linux: '[>]: # (mdpInsert cat file/not/present.txt)\r\nERROR: Command failed: cat file/not/present.txt\r\ncat: file/not/present.txt: No such file or directory\r\n[<]: #\r\n'
    }
  ]
 

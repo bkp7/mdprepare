@@ -47,8 +47,9 @@ export function processText (txt, clear, fileDirName) {
       } else {
         if (clear !== true) {
           r = r + h.replaceLineEndings(t.prepend + runCliCmd(t.info.cliCommand, fileDirName) + t.postpend, eolIsCRLF)
-        } else {
-          // we are clearing any content so remove all lines between the start and end lines
+        }
+        if (r.substr(-1) === '\n') {
+          // we don't want to introduce 2 CRLFs or LFs so remove all lines between the start and end lines
           if (txt.substr(frm, 1) === '\r') { frm++ }
           /* istanbul ignore else  */
           if (txt.substr(frm, 1) === '\n') { frm++ }
