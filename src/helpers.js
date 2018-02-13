@@ -69,7 +69,7 @@ export function findMdpInsert (txt, start) {
   let s1 = JSON.parse(JSON.stringify(s)) // create copy
   let depth = 1
   let e
-  let posn = s1.internalStart
+  let posn = s1.internalStart - 2
   while (depth !== 0) {
     e = _findMdpEndUnfenced(txt, s, posn)
     if (e.start === -1) {
@@ -81,7 +81,7 @@ export function findMdpInsert (txt, start) {
       // we have found another start pattern
       if (s1.start < (e.internalStart + e.internalLength)) {
         depth++
-        posn = s1.internalStart
+        posn = s1.internalStart - 2
       } else {
         depth--
         posn = e.start + e.length
