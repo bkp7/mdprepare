@@ -105,6 +105,12 @@
      full_win: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n',
      full_linux: '[>]: # (mdpInsert cat test/docs/abc.txt)\r\nabc\r\n[<]: #\r\n'
    }, {
+     name: 'Simple 1a',
+     text: '[>]: # (mdpInsert ``` cat test/docs/abc2.txt)\r\n\r\n12345\r\n[<]: #\r\n',
+     clear: '[>]: # (mdpInsert ``` cat test/docs/abc2.txt)\r\n[<]: #\r\n',
+     full_win: '[>]: # (mdpInsert ``` cat test/docs/abc2.txt)\r\n```\r\nabc\r\n```\r\n[<]: #\r\n',
+     full_linux: '[>]: # (mdpInsert ``` cat test/docs/abc2.txt)\r\n```\r\nabc\r\n```\r\n[<]: #\r\n'
+   }, {
      name: 'mdpInsert command not present',
      text: '[>]: # (mdpinsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n',
      clear: '[>]: # (mdpinsert cat test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n',

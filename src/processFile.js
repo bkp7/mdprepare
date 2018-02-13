@@ -46,7 +46,10 @@ export function processText (txt, clear, fileDirName) {
         r = r + txt.substr(t.internalStart, t.internalLength)
       } else {
         if (clear !== true) {
-          r = r + h.replaceLineEndings(t.prepend + runCliCmd(t.info.cliCommand, fileDirName) + t.postpend, eolIsCRLF)
+          let insertText = t.prepend + runCliCmd(t.info.cliCommand, fileDirName)
+          if (insertText.substr(-1) !== '\n' && t.postpend.length > 0) { insertText += '\n' }
+          insertText += t.postpend
+          r = r + h.replaceLineEndings(insertText, eolIsCRLF)
         }
         if (r.substr(-1) === '\n') {
           // we don't want to introduce 2 CRLFs or LFs so remove all lines between the start and end lines
@@ -79,7 +82,7 @@ function analyseCommandString (t) {
   } else {
     t.info.cliCommand = t.commandString.substr(x + regexResult[0].length)
     t.prepend = regexResult[1] + '\n'
-    t.postpend = '\n' + regexResult[2]
+    t.postpend = regexResult[2]
   }
 }
 
