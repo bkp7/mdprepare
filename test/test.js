@@ -2,7 +2,7 @@
 
  const processFile = require('../dist/processFile.js').default
  const {processText} = require('../dist/processFile.js')
- const {findCode, findMdpInsert, findMdpCode} = require('../dist/helpers.js')
+ const {findCode, findMdpInsert, findMdpCode, replaceLineEndings} = require('../dist/helpers.js')
  const {runCliCmd} = require('../dist/processFile.js')
  const assert = require('assert')
  const {exec} = require('child_process')
@@ -90,6 +90,13 @@
    {name: 'block and code 3', text: '>```\r\n>code\r\n>```\r\ntext', result: {start: 0, length: 17, internalStart: 6, internalLength: 5, commandString: ''}}
  ]
 
+ const lineEndingTests = [
+   {name: '1', text: '\nabc\r\nabc\n\n', resultCRLF: '\r\nabc\r\nabc\r\n\r\n', resultLF: '\nabc\nabc\n\n'},
+   {name: '2', text: ' \n\nabc\n\rabc\n ', resultCRLF: ' \r\n\r\nabc\r\n\rabc\r\n ', resultLF: ' \n\nabc\n\rabc\n '},
+   {name: '3', text: '\r\nabc\nabc\r\n', resultCRLF: '\r\nabc\r\nabc\r\n', resultLF: '\nabc\nabc\n'},
+   {name: '4', text: ' \r\n\r\nabc\r\n\rabc\r\n ', resultCRLF: ' \r\n\r\nabc\r\n\rabc\r\n ', resultLF: ' \n\nabc\n\rabc\n '}
+ ]
+
  const processTextTests = [
    {
      name: 'Simple 1',
@@ -107,8 +114,8 @@
      name: 'Command Line invalid',
      text: '[>]: # (mdpInsert catt test/docs/abc.txt)\r\n12345\r\n[<]: #\r\n',
      clear: '[>]: # (mdpInsert catt test/docs/abc.txt)\r\n[<]: #\r\n',
-     full_win: '[>]: # (mdpInsert catt test/docs/abc.txt)\r\nERROR: Command failed: catt test/docs/abc.txt\n\'catt\' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n\r\n[<]: #\r\n',
-     full_linux: '[>]: # (mdpInsert catt test/docs/abc.txt)\r\nERROR: Command failed: catt test/docs/abc.txt\n/bin/sh: 1: catt: not found\n\r\n[<]: #\r\n'
+     full_win: '[>]: # (mdpInsert catt test/docs/abc.txt)\r\nERROR: Command failed: catt test/docs/abc.txt\r\n\'catt\' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n\r\n[<]: #\r\n',
+     full_linux: '[>]: # (mdpInsert catt test/docs/abc.txt)\r\nERROR: Command failed: catt test/docs/abc.txt\r\n/bin/sh: 1: catt: not found\r\n\r\n[<]: #\r\n'
    }, {
      name: 'Surrounded',
      text: '# Simple Test\r\nSome initial text.\r\n[>]: # (mdpInsert cat test/docs/abc.txt)\r\nold text\r\n[<]: #\r\nOther text',
@@ -179,8 +186,8 @@
      name: 'Missing File',
      text: '[>]: # (mdpInsert cat file/not/present.txt)\r\n12345\r\n[<]: #\r\n',
      clear: '[>]: # (mdpInsert cat file/not/present.txt)\r\n[<]: #\r\n',
-     full_win: '[>]: # (mdpInsert cat file/not/present.txt)\r\nERROR: Command failed: type file\\not\\present.txt\nThe system cannot find the path specified.\r\n\r\n[<]: #\r\n',
-     full_linux: '[>]: # (mdpInsert cat file/not/present.txt)\r\nERROR: Command failed: cat file/not/present.txt\ncat: file/not/present.txt: No such file or directory\n\r\n[<]: #\r\n'
+     full_win: '[>]: # (mdpInsert cat file/not/present.txt)\r\nERROR: Command failed: type file\\not\\present.txt\r\nThe system cannot find the path specified.\r\n\r\n[<]: #\r\n',
+     full_linux: '[>]: # (mdpInsert cat file/not/present.txt)\r\nERROR: Command failed: cat file/not/present.txt\r\ncat: file/not/present.txt: No such file or directory\r\n\r\n[<]: #\r\n'
    }
  ]
 
@@ -195,6 +202,16 @@
 
  describe('unit tests', function () {
    describe('helpers.js', function () {
+     describe('replaceLineEndings', function () {
+       for (let i = 0; i < lineEndingTests.length; i++) {
+         it(lineEndingTests[i].name + ' CRLF', function () {
+           assert.equal(replaceLineEndings(lineEndingTests[i].text, true), lineEndingTests[i].resultCRLF)
+         })
+         it(lineEndingTests[i].name + ' LF', function () {
+           assert.equal(replaceLineEndings(lineEndingTests[i].text, false), lineEndingTests[i].resultLF)
+         })
+       }
+     })
      describe('findCode', function () {
        for (let i = 0; i < fencedCodeTests.length; i++) {
          it(fencedCodeTests[i].name, function () {

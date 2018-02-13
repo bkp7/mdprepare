@@ -56,7 +56,6 @@ export function findMdpCode (txt, start) {
   while (true) {
     x = findCode(txt, posn)
     if (x.start === -1 || x.commandString.indexOf('mdpInsert ') !== -1) {
-      getLineEnding(x, txt)
       return x
     } else {
       posn = x.start + x.length
@@ -93,7 +92,6 @@ export function findMdpInsert (txt, start) {
     }
     if (depth > 5) { return {start: -1} }
   }
-  getLineEnding(e, txt)
   return e
 }
 
@@ -107,13 +105,29 @@ export function earlierOf (a, b) {
   }
 }
 
-function getLineEnding (s, txt) {
-  // returns a basic structure with the type of line ending found within the text
-  if (typeof s.info === 'undefined') { s.info = {} }
-  if (txt.indexOf('\r\n') === -1) {
-    s.info.endOfLine = '\n'
+export function replaceLineEndings (txt, CRLF) {
+  // replaces line endings within txt, with CRLF if CRLF is true, otherwise just LF
+  if (CRLF === true) {
+    // NB can't do the replacement of '\n' with '\r\n' using regex due to javascript limitations
+    let p = 0 // current position in the string
+    let x = 0 // location of '\n' in the string
+    let t = '' // output string
+    while (true) {
+      x = txt.indexOf('\n', p)
+      if (x === -1) {
+        // we've not got any more '\n' in the string so complete and exit
+        t = t + txt.substr(p)
+        return t
+      } else if (x === 0 || txt.substr(x - 1, 1) !== '\r') {
+        t = t + txt.substring(p, x) + '\r\n'
+        p = x + 1
+      } else {
+        t = t + txt.substring(p, x + 1)
+        p = x + 1
+      }
+    }
   } else {
-    s.info.endOfLine = '\r\n'
+    return txt.replace(/(\r\n)/g, '\n')
   }
 }
 

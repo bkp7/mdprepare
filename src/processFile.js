@@ -29,6 +29,7 @@ export function processText (txt, clear, fileDirName) {
   let y
   let t
   let frm
+  let eolIsCRLF = (txt.indexOf('\r\n') !== -1)
   while (true) {
     x = h.findMdpCode(txt, posn)
     y = h.findMdpInsert(txt, posn)
@@ -40,12 +41,12 @@ export function processText (txt, clear, fileDirName) {
       r = r + txt.substring(posn, t.internalStart)
       frm = t.internalStart + t.internalLength
       analyseCommandString(t)
-      if (t.cliCommand === 'ERROR: mdpInsert command not found') {
+      if (t.info.cliCommand === 'ERROR: mdpInsert command not found') {
         // the mdpInsert command was not present so we don't insert or remove anything, just leave as is
         r = r + txt.substr(t.internalStart, t.internalLength)
       } else {
         if (clear !== true) {
-          r = r + t.prepend + runCliCmd(t.info.cliCommand, fileDirName) + t.postpend
+          r = r + h.replaceLineEndings(t.prepend + runCliCmd(t.info.cliCommand, fileDirName) + t.postpend, eolIsCRLF)
         } else {
           // we are clearing any content so remove all lines between the start and end lines
           if (txt.substr(frm, 1) === '\r') { frm++ }
@@ -62,9 +63,10 @@ export function processText (txt, clear, fileDirName) {
 
 function analyseCommandString (t) {
   // looks at the command string, checks it is a valid mdpInsert and populates .cli, .prepend and .postpend
+  if (typeof t.info === 'undefined') { t.info = {} }
   let x = t.commandString.indexOf('mdpInsert ')
   if (x === -1) {
-    t.cliCommand = 'ERROR: mdpInsert command not found'
+    t.info.cliCommand = 'ERROR: mdpInsert command not found'
     return
   }
   let regex = /mdpInsert ((`{3,}|~{3,})[^ ]*) /
@@ -75,8 +77,8 @@ function analyseCommandString (t) {
     t.postpend = ''
   } else {
     t.info.cliCommand = t.commandString.substr(x + regexResult[0].length)
-    t.prepend = regexResult[1] + t.info.endOfLine
-    t.postpend = t.info.endOfLine + regexResult[2]
+    t.prepend = regexResult[1] + '\n'
+    t.postpend = '\n' + regexResult[2]
   }
 }
 
