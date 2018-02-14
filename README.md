@@ -4,7 +4,7 @@ A command line utility to prepare and process md files ready for publication.
 
 [![Build Status](https://travis-ci.org/bkp7/mdprepare.svg?branch=master)](https://travis-ci.org/bkp7/mdprepare) [![Windows Tests](https://img.shields.io/appveyor/ci/bkp7/mdprepare/master.svg?label=Windows%20build)](https://ci.appveyor.com/project/bkp7/mdprepare) [![npm](https://img.shields.io/npm/v/npm.svg)](https://www.npmjs.com/package/@bkp7/mdprepare) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/bkp7/mdprepare/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/bkp7/mdprepare/?branch=master) [![Coverage Status](https://coveralls.io/repos/github/bkp7/mdprepare/badge.svg?branch=master)](https://coveralls.io/github/bkp7/mdprepare?branch=master)
 
-## THIS UTILITY IS UNDER CONSTRUCTION AND NOT READY FOR USE YET
+## THIS UTILITY IS IN BETA PHASE TESTING
 
 ## Introduction
 Allows anything that can be obtained at the command line to be inserted into a markdown document. Including a whole file, a file extract or any program output via stdout.
@@ -50,18 +50,22 @@ There are two methods of insertion
 
 Compatible with most dialects of markdown, a pair of link destinations are used to surround the area which will receive the inserted text. eg:
 ````markdown
+
 [>]: # (mdpInsert cat ./example1.md)
 some previous text
 [<]: #
 ````
 The first character (`<` or `>`) in the square brackets is required as are the square brackets, hash, and spaces. Other text in the square brackets is ignored so can be used for your comments. The command itself can be enclosed in brackets, single quote, or double quote, so the following are also valid pairs:
 ````markdown
+
 [>]: # " mdpInsert node -v "
 [<]: #
 
 [>my comments]: # 'mdpInsert echo "it works"'
 [<more comments]: #
 ````
+
+Note that a blank line is required before the openning link destination to ensure maximum compatibility with markdown browsers. See [this stack**overflow**](https://stackoverflow.com/questions/4823468/comments-in-markdown/32190021#32190021) question for details. Importantly the format shown here with the blank line also works perfectly for both npm and GitHub.
 
 ### Fenced Code
 
