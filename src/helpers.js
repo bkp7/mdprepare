@@ -137,8 +137,9 @@ function _findMdpStartUnfenced (txt, start) {
   while (true) {
     m = _findMdpStart(txt, lookFrom)
     if (m.start === -1) { return m }
-    c = findCode(txt, lookFrom)
-    if (c.start === -1 || m.start < c.start || m.start > (c.start + c.length)) {
+    // we need to find the first code which ends after the mdp start
+    c = _findCodeEndingAfter(txt, lookFrom, m.start)
+    if (c.start === -1 || m.start < c.start) {
       // the mdp start we've found is not within a code fence
       break
     }
@@ -161,14 +162,27 @@ function _findMdpStartUnfenced (txt, start) {
   }
 }
 
+function _findCodeEndingAfter (txt, start, endingAfter) {
+  // returns the first code block which ends after the position specified
+  // the search starts at start
+  let pos = start
+  let c
+  do {
+    c = findCode(txt, pos)
+    pos = c.start + c.length
+  } while (c.start !== -1 && pos <= endingAfter)
+  return c
+}
+
 function _findMdpEndUnfenced (txt, opening, start) {
   let lookFrom = start
   let m, c
   while (true) {
     m = _findMdpEnd(txt, opening, lookFrom - 2)
     if (m.start === -1) { return m }
-    c = findCode(txt, lookFrom)
-    if (c.start === -1 || (m.internalStart + m.internalLength) < c.start || (m.internalStart + m.internalLength) > (c.start + c.length)) { break } // the mdp end we've found is not within a code fence
+    // we need to find the first code which ends after the mdpEnd starts
+    c = _findCodeEndingAfter(txt, lookFrom, (m.internalStart + m.internalLength))
+    if (c.start === -1 || (m.internalStart + m.internalLength) < c.start) { break } // the mdp end we've found is not within a code fence
     // the mdp end we've found is within a code fence so find the next one
     lookFrom = c.start + c.length
   }
