@@ -21,13 +21,12 @@ export function findMdpCode (txt, start) {
   // finds the next location of mdpInsert in a code span within txt
   let posn = start
   let x
-  while (true) {
+  do {
     x = findCode(txt, posn)
     if (x.start === -1 || x.commandString.indexOf('mdpInsert ') !== -1) {
       break
-    } else {
-      posn = x.start + x.length
     }
-  }
+    posn = x.start + x.length
+  } while (true)
   return x
 }
