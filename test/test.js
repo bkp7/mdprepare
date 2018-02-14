@@ -2,7 +2,10 @@
 
  const processFile = require('../dist/processFile.js').default
  const {processText} = require('../dist/processFile.js')
- const {findCode, findMdpInsert, findMdpCode, replaceLineEndings} = require('../dist/helpers.js')
+ const {findCode} = require('../dist/findCode.js')
+ const {findMdpInsert} = require('../dist/findMdpInsert.js')
+ const {findMdpCode} = require('../dist/findMdpCode.js')
+ const {replaceLineEndings} = require('../dist/helpers.js')
  const {runCliCmd} = require('../dist/processFile.js')
  const assert = require('assert')
  const {exec} = require('child_process')

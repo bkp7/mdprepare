@@ -4,6 +4,8 @@ const fs = require('fs')
 const os = require('os')
 const path = require('path')
 const h = require('./helpers.js')
+const {findMdpCode} = require('./findMdpCode.js')
+const {findMdpInsert} = require('./findMdpInsert.js')
 
 export default function (filePath, clear) {
   // this function accepts a markdown filename and runs any mdprepare code which is embedded in that file
@@ -31,8 +33,8 @@ export function processText (txt, clear, fileDirName) {
   let frm
   let eolIsCRLF = (txt.indexOf('\r\n') !== -1)
   while (true) {
-    x = h.findMdpCode(txt, posn)
-    y = h.findMdpInsert(txt, posn)
+    x = findMdpCode(txt, posn)
+    y = findMdpInsert(txt, posn)
     t = h.earlierOf(x, y)
     if (t.start === -1) {
       r = r + txt.substring(posn)
