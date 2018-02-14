@@ -24,9 +24,10 @@ export function findMdpCode (txt, start) {
   while (true) {
     x = findCode(txt, posn)
     if (x.start === -1 || x.commandString.indexOf('mdpInsert ') !== -1) {
-      return x
+      break
     } else {
       posn = x.start + x.length
     }
   }
+  return x
 }

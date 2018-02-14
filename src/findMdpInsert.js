@@ -24,28 +24,23 @@ export function findMdpInsert (txt, start) {
   let depth = 1
   let e
   let posn = s1.internalStart - 2
-  while (depth !== 0) {
+  do {
     e = _findMdpEndUnfenced(txt, s, posn)
     if (e.start === -1) {
       // we have not found any more ends so we need to return a fail
       return e
     }
     s1 = _findMdpStartUnfenced(txt, posn)
-    if (s1.start !== -1) {
-      // we have found another start pattern
-      if (s1.start < (e.internalStart + e.internalLength)) {
-        depth++
-        posn = s1.internalStart - 2
-      } else {
-        depth--
-        posn = e.start + e.length
-      }
+    if (s1.start !== -1 && s1.start < (e.internalStart + e.internalLength)) {
+      // we have found another start pattern before the end of the end pattern - so a new level
+      depth++
+      posn = s1.internalStart - 2
     } else {
       depth--
       posn = e.start + e.length
     }
     if (depth > 5) { return {start: -1} }
-  }
+  } while (depth !== 0)
   return e
 }
 
