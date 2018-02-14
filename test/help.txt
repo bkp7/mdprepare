@@ -1,0 +1,11 @@
+  mdprepare processes markdown files and acts on any mdpInsert commands within them
+
+  Usage: mdprepare GLOB [options] process the files specified
+
+  GLOB       Glob expression representing the files to be processed
+  Options:
+     --ignore GLOB
+             GLOB represents a list of files to be ignored
+     --clear
+             clears the contents in the files specified rather than inserting
+

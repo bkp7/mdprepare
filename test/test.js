@@ -197,15 +197,6 @@
    }
  ]
 
-// describe('mdprepare', function () {
-//   it('fires and returns "processed x files message"', function (done) {
-//     this.timeout(4000)
-//     let buf = execSync('mdprepare --ignore **/*.js')
-//     assert.equal(buf.toString().substr(0, 10), 'processed ')
-//     done()
-//   })
-// })
-
  describe('unit tests', function () {
    describe('helpers.js', function () {
      describe('replaceLineEndings', function () {
@@ -285,6 +276,15 @@
  })
 
  describe('mdprepare', function () {
+   it('mdprepare --help works', function (done) {
+     this.timeout(8000)
+     exec('mdprepare --help', function (error, stdout) {
+       assert.ifError(error)
+       assert.equal(stdout.toString(), fs.readFileSync('./test/help.txt').toString())
+       done()
+     })
+   })
+
    it('fires and returns "processed x files message (1)"', function (done) {
      this.timeout(8000)
      exec('mdprepare --ignore=**/*.md', function (error, stdout) {
