@@ -314,6 +314,15 @@
        done()
      })
    })
+
+   it('fires and processes multiple files from wildcard', function (done) {
+     this.timeout(8000)
+     exec('mdprepare ./test/multiFile/*.md', function (error, stdout) {
+       assert.ifError(error)
+       assert.notEqual(stdout.toString().indexOf('processed 3 files'), -1)
+       done()
+     })
+   })
  })
 
  describe('mdprepare test files', function () {
