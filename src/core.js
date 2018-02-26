@@ -27,7 +27,7 @@ export function cli (args) {
   let options = {cwd: process.cwd(), ignore: ig}
 
   let pattern
-  if (argv._.length === 0) { pattern = './**/*.md' } else { pattern = argv._[0] }
+  if (argv._.length === 0) { pattern = './**/*.md' } else { pattern = argv._ }
 
   debug('starting glob(' + pattern + ', ' + JSON.stringify(options))
   glob(pattern, options)
