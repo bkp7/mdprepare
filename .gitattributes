@@ -1,0 +1,7 @@
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+# Declare files which should always be checked out with lf
+package.json eol=lf
+package-lock.json eol=lf
+test/help.txt eol=lf
