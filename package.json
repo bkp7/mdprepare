@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "chalk": "^2.3.0",
-    "debug": "^3.1.0",
+    "debug": "^4.0.0",
     "glob-gitignore": "^1.0.6",
     "ignore": "^3.3.7",
     "minimist": "^1.2.0"
