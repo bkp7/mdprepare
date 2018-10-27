@@ -50,7 +50,7 @@
     "chalk": "^2.3.0",
     "debug": "^3.1.0",
     "glob-gitignore": "^1.0.6",
-    "ignore": "^3.3.7",
+    "ignore": "^5.0.2",
     "minimist": "^1.2.0"
   },
   "devDependencies": {
