@@ -1,11 +1,11 @@
 const debug = require('debug')('mdprepare:processFile')
-const {execSync} = require('child_process')
+const { execSync } = require('child_process')
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
 const h = require('./helpers.js')
-const {findMdpCode} = require('./findMdpCode.js')
-const {findMdpInsert} = require('./findMdpInsert.js')
+const { findMdpCode } = require('./findMdpCode.js')
+const { findMdpInsert } = require('./findMdpInsert.js')
 
 export default function (filePath, clear) {
   // this function accepts a markdown filename and runs any mdprepare code which is embedded in that file
@@ -92,7 +92,7 @@ export function runCliCmd (str, wDirName) {
   // wDirName is either an absolute path or a relative path to the directory node was run from
   let cmd = crossPlatformCmds(str)
   try {
-    return execSync(cmd, {cwd: wDirName})
+    return execSync(cmd, { cwd: wDirName })
   } catch (err) {
     return 'ERROR: ' + err.message
   }

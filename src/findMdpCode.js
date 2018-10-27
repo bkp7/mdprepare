@@ -15,7 +15,7 @@
   *
 **/
 
-const {findCode} = require('./findCode.js')
+const { findCode } = require('./findCode.js')
 
 export function findMdpCode (txt, start) {
   // finds the next location of mdpInsert in a code span within txt

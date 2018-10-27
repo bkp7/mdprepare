@@ -15,7 +15,7 @@
   *
 **/
 
-const {findCode} = require('./findCode.js')
+const { findCode } = require('./findCode.js')
 
 export function findMdpInsert (txt, start) {
   let s = _findMdpStartUnfenced(txt, start)
@@ -39,7 +39,7 @@ export function findMdpInsert (txt, start) {
       depth--
       posn = e.start + e.length
     }
-    if (depth > 5) { return {start: -1} }
+    if (depth > 5) { return { start: -1 } }
   } while (depth !== 0)
   return e
 }
@@ -65,7 +65,7 @@ function _findMdpStartUnfenced (txt, start) {
     let regex = /(\r\n|\n|^)([ ]{0,3}\[>[^\r\n\t\0[\]]*\]: # (\([^\r\n\t\0]*\)|"[^\r\n\t\0]*"|'[^\r\n\t\0]*'))(\r\n|\n)/g
     regex.lastIndex = start
     let regexResult = regex.exec(txt)
-    if (regexResult === null) { return {start: -1} }
+    if (regexResult === null) { return { start: -1 } }
     let r = {
       start: regexResult.index + regexResult[1].length,
       internalStart: regexResult.index + regexResult[0].length,
@@ -94,7 +94,7 @@ function _findMdpEndUnfenced (txt, opening, start) {
     let regex = /(\r\n|\n)([ ]{0,3}\[<[^\r\n\t\0[\]]*\]: #)(\r\n|\n|$)/g
     regex.lastIndex = start
     let regexResult = regex.exec(txt)
-    if (regexResult === null) { return {start: -1} }
+    if (regexResult === null) { return { start: -1 } }
     r.internalLength = regexResult.index - r.internalStart
     r.length = regexResult.index + regexResult[0].length - regexResult[3].length - r.start
     return r

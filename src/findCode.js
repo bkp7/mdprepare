@@ -15,7 +15,7 @@
   *
 **/
 
-const {earlierOf} = require('./helpers.js')
+const { earlierOf } = require('./helpers.js')
 
 export function findCode (txt, start) {
   /**
@@ -76,7 +76,7 @@ function _findFencedCode (txt, start) {
     regex.lastIndex = start
     let regexResult = regex.exec(txt)
     if (regexResult === null) {
-      return {start: -1}
+      return { start: -1 }
     }
     let r = { start: regexResult.index + regexResult[1].length,
       info: {
@@ -136,14 +136,14 @@ function _findIndentedCode (txt, start) {
   regex.lastIndex = start
   let regexResult = regex.exec(txt)
   if (regexResult === null) {
-    return {start: -1}
+    return { start: -1 }
   } else {
     return {
       start: regexResult.index,
       length: regexResult[0].length,
       internalStart: regexResult.index,
       internalLength: regexResult[0].length,
-      info: {indent: regexResult[2]},
+      info: { indent: regexResult[2] },
       commandString: ''
     }
   }
@@ -168,7 +168,7 @@ function _findCodeSpan (txt, start) {
     // 2nd group is the ` characters (however many there are)
     regex.lastIndex = start
     let regexResult = regex.exec(txt)
-    if (regexResult === null) { return {start: -1} }
+    if (regexResult === null) { return { start: -1 } }
     let r = {
       start: regexResult.index + regexResult[1].length,
       internalStart: regexResult.index + regexResult[1].length + regexResult[2].length,
@@ -184,7 +184,7 @@ function _findCodeSpan (txt, start) {
     let regex = RegExp('([^`])(' + r.info.codeFence + ')($|[^`])', 'g')
     regex.lastIndex = r.internalStart
     let regexResult = regex.exec(txt)
-    if (regexResult === null) { return {start: -1} }
+    if (regexResult === null) { return { start: -1 } }
     r.internalLength = regexResult.index + regexResult[1].length - r.internalStart
     r.length = regexResult.index + regexResult[0].length - regexResult[3].length - r.start
     r.commandString = ''
