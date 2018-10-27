@@ -7,7 +7,7 @@ const fs = require('fs')
 const minimist = require('minimist')
 
 export function cli (args) {
-  const argv = minimist(args.slice(2), {'boolean': ['clear', 'help']})
+  const argv = minimist(args.slice(2), { 'boolean': ['clear', 'help'] })
   debug('arguments from minimist:', argv)
 
   if (argv.help) {
@@ -24,7 +24,7 @@ export function cli (args) {
   ig.add('node_modules')
   if (argv.hasOwnProperty('ignore')) { ig.add(argv.ignore) }
 
-  let options = {cwd: process.cwd(), ignore: ig}
+  let options = { cwd: process.cwd(), ignore: ig }
 
   let pattern
   if (argv._.length === 0) { pattern = './**/*.md' } else { pattern = argv._ }
