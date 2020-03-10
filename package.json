@@ -51,7 +51,7 @@
     "debug": "^4.1.0",
     "glob-gitignore": "^1.0.6",
     "ignore": "^5.0.2",
-    "minimist": "^1.2.0"
+    "minimist": "^1.2.2"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
