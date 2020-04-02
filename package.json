@@ -47,7 +47,7 @@
     "instrument": false
   },
   "dependencies": {
-    "chalk": "^2.3.0",
+    "chalk": "^4.0.0",
     "debug": "^4.1.0",
     "glob-gitignore": "^1.0.6",
     "ignore": "^5.0.2",
